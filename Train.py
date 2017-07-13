@@ -353,6 +353,11 @@ class Train(object):
 #         self.has_arrived_at_station = True
         self.stations_visited[t] = (self.current_station_id)
         
+        # upon arrival at the platform, remove it from the upcoming list
+        # exception is the first station, since it was not added to the upcoming trains list upon dispatching from the garage
+        if self.prev_station_id != self.Param.garage_name:
+            self._remove_train_from_platform_upcoming(central_monitor_instance, self.current_station_id)
+        
         
         
     def unload_passengers(self, central_monitor_instance, t, god):
@@ -379,6 +384,30 @@ class Train(object):
 #             self.start_over(t=t)
             pass
     
+    def _add_train_to_platform_upcoming(self, central_monitor_instance, station_id, time_to_station):
+        # add this train to the appropriate platform's upcoming trains 
+        next_station_instance = central_monitor_instance.return_station_by_id(station_id)
+        next_platform_instance = next_station_instance.platforms[self.direction]
+        next_platform_instance.upcoming_trains[self.car_id] = time_to_station
+        
+    def _remove_train_from_platform_upcoming(self, central_monitor_instance, station_id):
+        # upon arrival at the platform, remove it from the upcoming list 
+        current_station_instance = central_monitor_instance.return_station_by_id(station_id)
+        current_platform_instance = current_station_instance.platforms[self.direction]
+        
+#==============================================================================
+#         print (current_platform_instance.upcoming_trains)
+#         print(current_platform_instance.direction)
+#         print ("car ID : ")
+#         print(self.car_id)
+#         print (self.prev_station_id )
+#         print(self.Param.garage_name)
+#         
+#==============================================================================
+        
+        del current_platform_instance.upcoming_trains[self.car_id]
+        
+        
     def depart_station(self, central_monitor_instance, t):
         self.waiting = False
         
@@ -388,7 +417,8 @@ class Train(object):
             
         if self.current_station_id == self.Param.terminal_station:
             # if it is the last station
-            self.start_over(central_monitor_instance,  garage=      central_monitor_instance.return_garage_of_opposite_direction(self.direction), t=t)   
+            self.start_over(central_monitor_instance,  garage=      central_monitor_instance.return_garage_of_opposite_direction(self.direction), t=t)  
+            
         else:
             # get the next station id
             self.next_station_id = self.get_next_station_id()
@@ -398,6 +428,9 @@ class Train(object):
             self.distance_to_next_station = self.Param.station_distances[self.current_station_id][self.next_station_id]
             # get time to next station
             self.time_to_next_station = self.get_travel_time_to_next_station()
+            # add this train to the appropriate platform's upcoming trains 
+            self._add_train_to_platform_upcoming(central_monitor_instance, self.next_station_id, self.time_to_next_station )
+            
             
             # get distance and time to the next NEXT station
             if self.next_NEXT_station_id != None:
@@ -405,6 +438,9 @@ class Train(object):
                 self.distance_to_the_next_NEXT_station = self.distance_to_next_station + self.Param.station_distances[self.next_station_id][self.next_NEXT_station_id]     
                 
                 self.time_to_next_NEXT_station = self.time_to_next_station + self.Param.station_travel_times[self.next_station_id][self.next_NEXT_station_id]
+                
+                # add this train to the appropriate platform's upcoming trains 
+                self._add_train_to_platform_upcoming(central_monitor_instance, self.next_NEXT_station_id, self.time_to_next_NEXT_station )
                 
             else : 
                 self.distance_to_the_next_NEXT_station = None # since the next next station is the garage, so no point is keeping this
@@ -415,6 +451,10 @@ class Train(object):
             self.prev_station_id = self.current_station_id
             
             
+            
+            
+            
+    
             
         
     def save_state(self, t, csv_writer):

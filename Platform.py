@@ -31,9 +31,16 @@ class Platform(object):
         self.hist_queue = defaultdict(list)
         # for visualiztion; we want every station to start with zero passengers
         self.hist_queue["do"].append(0)
-    
+        
+        # keep track of approaching trains and their distance (or time)
+        # {train_id : time_to_get}
+        self.upcoming_trains = defaultdict(int)        
+        
+        
     def get_transfer_time(self, line1):
-        ''' '''
+        ''' 
+        interesting that I had coded this :)
+        '''
         
         if self.line == line1:
             return 0 # no transfer time
