@@ -96,7 +96,7 @@ class Param_Central_WE(Param_Central):
 
     # create sufficient trains
     max_tt = max(station_travel_times[Param_Central.route_nlcs[0]].values())
-    num_req_trains = int(np.ceil(max_tt / Param_Central.HEADWAY)) + 24 # safety measure
+    num_req_trains = int(np.ceil(max_tt / Param_Central.HEADWAY)) + 10 # safety measure
     train_ids = [str(alp) + str(random.randint(0,1000))  for alp in xrange(1,num_req_trains+1)]
     terminal_station = stations[len(stations)-1]
     
@@ -145,7 +145,7 @@ class Param_Central_EW(Param_Central):
 
     # create sufficient trains
     max_tt = max(station_travel_times[route_nlcs[0]].values())
-    num_req_trains = int(np.ceil(max_tt / Param_Central.HEADWAY)) + 24 # safety measure
+    num_req_trains = int(np.ceil(max_tt / Param_Central.HEADWAY)) + 10 # safety measure
     train_ids = [str(alp) + str(random.randint(0,1000))  for alp in xrange(1,num_req_trains+1)]
     terminal_station = stations[len(stations)-1]
     

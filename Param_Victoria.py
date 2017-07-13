@@ -92,10 +92,12 @@ class Param_Victoria_SN(Param_Victoria):
     consecutive_speeds[garage_name][route_nlcs[0]] = 9
     station_travel_times[route_nlcs[len(route_nlcs) - 1]][last_garage_name]= 1
     consecutive_speeds[route_nlcs[len(route_nlcs) - 1]][last_garage_name] = 9
+    
+    
 
     # create sufficient trains
     max_tt = max(station_travel_times[Param_Victoria.route_nlcs[0]].values())
-    num_req_trains = int(np.ceil(max_tt / Param_Victoria.HEADWAY)) + 24 # safety measure
+    num_req_trains = int(np.ceil(max_tt / Param_Victoria.HEADWAY)) + 10 # safety measure
     train_ids = [str(alp) + str(random.randint(0,1000))  for alp in xrange(1,num_req_trains+1)]
     terminal_station = stations[len(stations)-1]
     
@@ -145,7 +147,7 @@ class Param_Victoria_NS(Param_Victoria):
 
     # create sufficient trains
     max_tt = max(station_travel_times[route_nlcs[0]].values())
-    num_req_trains = int(np.ceil(max_tt / Param_Victoria.HEADWAY)) + 24 # safety measure
+    num_req_trains = int(np.ceil(max_tt / Param_Victoria.HEADWAY)) + 10 # safety measure
     train_ids = [str(alp) + str(random.randint(0,1000))  for alp in xrange(1,num_req_trains+1)]
     terminal_station = stations[len(stations)-1]
     

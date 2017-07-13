@@ -219,15 +219,27 @@ class Train(object):
             self.passengers = defaultdict(list)
         
     def get_next_station_id(self):
+        # if this is not the last stop
         if self.current_station_id != self.Param.terminal_station:
-            # if this is not the last stop
+            
             current_index = self.Param.stations.index(self.current_station_id)
             next_station_id = self.Param.stations[current_index + 1]
             return next_station_id 
         else:
             # terminal station
-            return 'garage'
-        
+            return None
+            
+    def get_next_NEXT_station_id(self):
+        # MUST CALL get_next_station_id() BEFORE THIS
+        # if the next stop is not the last stop
+        if self.next_station_id != self.Param.terminal_station:
+            
+            current_index = self.Param.stations.index(self.current_station_id)
+            next_next_station_id = self.Param.stations[current_index + 2]
+            return next_next_station_id 
+        else:
+            # terminal station
+            return None 
 
             
     def get_travel_time_to_next_station(self):
@@ -291,7 +303,7 @@ class Train(object):
                 end_point = line.interpolate(distance + dist_from_start_node)
                 return (end_point)
             else:
-                print " moved passed the end of line, should've catched it before calling this function! "
+                print " moved passed the end of line, should've caught it before calling this function! "
                 
         elif self.direction != self.Param.PRIMARY_DIRECTION:
             dist_from_end_node = line.project(pt)
@@ -299,7 +311,7 @@ class Train(object):
                 end_point = line.interpolate(dist_from_end_node - distance)
                 return (end_point)
             else:
-                print " moved passed the end of line, should've catched it before calling this function! "
+                print " moved passed the end of line, should've caught it before calling this function! "
 
     
     
@@ -312,7 +324,11 @@ class Train(object):
         self.position = self._move_train_one_dist(pt = self.position, distance=distance)
         self.distance_to_next_station -= distance
         self.time_to_next_station -= self.distance_to_next_station / distance 
-            
+        
+        if self.distance_to_the_next_NEXT_station : # so if the next next station is garage, and therefore distance is None
+            self.distance_to_the_next_NEXT_station -= distance
+            self.time_to_next_NEXT_station -= self.distance_to_next_station / distance 
+           
         
             
     def has_it_reached_a_station(self, distance=None):
@@ -372,14 +388,29 @@ class Train(object):
             
         if self.current_station_id == self.Param.terminal_station:
             # if it is the last station
-            self.start_over(central_monitor_instance,  garage= central_monitor_instance.return_garage_of_opposite_direction(self.direction), t=t)
+            self.start_over(central_monitor_instance,  garage=      central_monitor_instance.return_garage_of_opposite_direction(self.direction), t=t)   
         else:
             # get the next station id
             self.next_station_id = self.get_next_station_id()
+            # get the next next station id 
+            self.next_NEXT_station_id = self.get_next_NEXT_station_id()
             # get distance to next station
             self.distance_to_next_station = self.Param.station_distances[self.current_station_id][self.next_station_id]
             # get time to next station
             self.time_to_next_station = self.get_travel_time_to_next_station()
+            
+            # get distance and time to the next NEXT station
+            if self.next_NEXT_station_id != None:
+                
+                self.distance_to_the_next_NEXT_station = self.distance_to_next_station + self.Param.station_distances[self.next_station_id][self.next_NEXT_station_id]     
+                
+                self.time_to_next_NEXT_station = self.time_to_next_station + self.Param.station_travel_times[self.next_station_id][self.next_NEXT_station_id]
+                
+            else : 
+                self.distance_to_the_next_NEXT_station = None # since the next next station is the garage, so no point is keeping this
+                self.time_to_next_NEXT_station = None
+            
+            
             
             self.prev_station_id = self.current_station_id
             

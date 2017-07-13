@@ -13,7 +13,7 @@ import csv
     
 start_time = time.time()
 simulation_time = Param_Central.SIMULATION_TIME #
-simulation_time = 30000
+simulation_time = 10000
 MAX_POSITION = max(Param_Central.station_positions.values())
 # central_monitor_instance = CentralMonitor("Central")
 # victoria_central_monitor_instance = CentralMonitor("Victoria")
