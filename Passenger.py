@@ -57,7 +57,9 @@ class Passenger(object):
         self.entry_time = entry_time
         self.boarding_time = None
         self.exit_time = None
-        
+    
+    def should_it_board(self):
+        pass 
     
         
         

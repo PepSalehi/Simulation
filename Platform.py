@@ -17,6 +17,8 @@ class Platform(object):
         self.historical_queue = deque()
         self.observed_queue = deque()
         self.predicted_queue = deque()
+        # secondary queue for pax who decide to not board the train
+        self.secondary_queue = deque()
         # a way to enforce trains don't move head to end
         self.is_occupied = False
         self.time_since_occupied = 100000

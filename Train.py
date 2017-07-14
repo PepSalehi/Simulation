@@ -107,6 +107,7 @@ class Train(object):
                         j+=1
 #                     print str(j)+ " people couldn't board the train at level " + level
             else:
+                # if after unloading the passengers, there is still no room for new pax to board
                 denied = True
                 for pax in station.queue[level]:
                         pax.number_of_denied_boardings[level] += 1
@@ -365,7 +366,7 @@ class Train(object):
     
     def board_passengers(self,central_monitor_instance,  t):
         # remember to first call unload passengers
-        
+        # station = platform here 
         current_station = central_monitor_instance.return_station_by_id(self.current_station_id).platforms[self.direction]
 
         # check if this is the last station. 
@@ -452,10 +453,6 @@ class Train(object):
             
             
             
-            
-            
-    
-            
         
     def save_state(self, t, csv_writer):
         '''
@@ -497,7 +494,6 @@ class Train(object):
                     if self.should_it_keep_waiting():
 #                         print "still waiting, time: ", str(t)
 #                         self.log_file.write("train "+ (self.car_id) +  " still waiting, time: "+ str(t)+'\n')
-
                         self.keep_waiting()
                     else:
                         station = central_monitor_instance.return_station_by_id(self.next_station_id)
