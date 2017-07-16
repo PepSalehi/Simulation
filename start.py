@@ -9,8 +9,10 @@ import csv
 
 #def run():
     
-    
-    
+#==============================================================================
+# This part must be shared between real-life and the decision support simulations
+#     
+#==============================================================================
 start_time = time.time()
 simulation_time = Param_Central.SIMULATION_TIME #
 simulation_time = 10000
@@ -20,6 +22,10 @@ MAX_POSITION = max(Param_Central.station_positions.values())
 god = God()
 god.make_central_monitor("Central")
 god.make_central_monitor("Victoria")
+
+
+
+
 
 #==============================================================================
 # god.distribute_trains("Central")
@@ -44,6 +50,11 @@ victoria_st_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-
 victoria_st_csv_writer = csv.writer(victoria_st_csv_file)  
 victoria_st_csv_writer.writerow(('t', 'station_id', 'platform', 'queue', 'hist_queue_array'))
 
+
+
+#==============================================================================
+# Simulation specific
+#==============================================================================
 
 
 for t in range(0, int(simulation_time)):
