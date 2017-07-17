@@ -18,7 +18,7 @@ class Platform(object):
         self.observed_queue = deque()
         self.predicted_queue = deque()
         # secondary queue for pax who decide to not board the train
-        self.secondary_queue = deque()
+        self.secondary_queue =defaultdict(deque)
         # a way to enforce trains don't move head to end
         self.is_occupied = False
         self.time_since_occupied = 100000
@@ -36,7 +36,9 @@ class Platform(object):
         
         # keep track of approaching trains and their distance (or time)
         # {train_id : time_to_get}
-        self.upcoming_trains = defaultdict(int)        
+        self.upcoming_trains = defaultdict(int)
+        # {train_id : ['red', 'blue']}
+        self.train_colors = defaultdict(deque)
         
         
     def get_transfer_time(self, line1):
@@ -133,7 +135,9 @@ class Platform(object):
         
         '''
         csv_writer.writerow((t, self.ids, self.direction ,len(self.queue["O"]), self.hist_queue["do"]))
-        
+    
+    def save_state_for_other_iterations(self):
+        pass 
         
     def update(self, t):
         # update Station for every epoch

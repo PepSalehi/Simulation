@@ -24,7 +24,9 @@ class CentralMonitor(object):
 
         self.all_passengers_offloaded = defaultdict(list)
         self.passenger_denied_boarding = defaultdict(list)
-
+        # 
+        self.passenger_denied_boarding_out_of_choice = defaultdict(list)
+        
         self.all_passengers_boarded = []
         self.all_passengers_emptied_at_last = defaultdict(list)
 

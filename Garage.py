@@ -27,8 +27,10 @@ class Garage(object):
         dispatched_train.is_in_service = True
         dispatched_train.time_to_next_station = self.Param.station_travel_times[self.garage_name][self.Param.stations[0]]
         
-        print 'dispatched train', str(dispatched_train.car_id) , ' at time ', str(t), " from queue ", str(self.garage_name)
-        print dispatched_train.is_in_service
-        print str(len(self.queue)) + ' trains in the garage' 
+#==============================================================================
+#         print 'dispatched train', str(dispatched_train.car_id) , ' at time ', str(t), " from queue ", str(self.garage_name)
+#         print dispatched_train.is_in_service
+#         print str(len(self.queue)) + ' trains in the garage' 
+#==============================================================================
     
     

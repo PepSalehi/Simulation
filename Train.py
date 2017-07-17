@@ -46,6 +46,8 @@ class Train(object):
         self.prev_station_id = prev_station_id
         self.next_station_id = next_station_id # KEEP
         self.has_arrived_at_station = False
+        self.next_NEXT_station_id = None
+        self.time_to_next_NEXT_station = None
         
         self.passengers = defaultdict(list)
         
@@ -72,10 +74,31 @@ class Train(object):
         ## 
         self.stations_visited = {}
         self._saved_states = {}
+        # for other iterations
+        self._save_detailed_state_for_later = deque()
 #         self.log_file = open((self.car_id)  + ' workfile.txt', 'w') # + str(random.randint(0,100000))
         
-    
+    def _compute_train_prob_color(self, prob):
+        if prob <= 0.2 :
+            return "red"
+        elif prob <= 0.8:
+            return "yellow"
+        else:
+            return "green"
+            
+            
+    def _compute_boading_probability(self, pax_queue, pax_onboard_queue):
+        
+        remaining_cap = self.CAPACITY - len(pax_onboard_queue)
+        
+        if remaining_cap > len(pax_queue) or len(pax_queue) == 0  :
+            return 1
+        else: 
+            prob_of_boarding = remaining_cap / len(pax_queue)   
+            return prob_of_boarding
+        
     def load_passenger(self, central_monitor_instance,  t, station):
+        
 #         print 'boarding at time ', t
         # don't keep track of those who were previously boarded 
         self.just_boarded = []
@@ -85,6 +108,11 @@ class Train(object):
         i = 0
         for level in ["H", "O", "P"]:
             if len(self.passengers[level]) < self.CAPACITY:
+                # add functionality for calculating the true probability of boarding the train
+                prob_of_boarding = self._compute_boading_probability(station.queue[level], self.passengers[level])
+                self.boarding_prob_color = self._compute_train_prob_color(prob_of_boarding)
+                
+                # read other upcoming trains colors 
                 
                 if self.CAPACITY - len(self.passengers[level]) < len(station.queue[level]): 
 #                     print "DENIED BOARDING for train "+ self.car_id + " at level " + level
@@ -92,14 +120,35 @@ class Train(object):
                     
                 while len(self.passengers[level]) < self.CAPACITY and len(station.queue[level]) > 0:
                     pax = station.queue[level].pop()
-                    pax.boarding_time = t
-                    pax.boarding_train_direction = self.direction
-                    self.passengers[level].append(pax)
-                    i += 1
-                    self.just_boarded.append(pax)
-
-                    central_monitor_instance.all_passengers_boarded.append(pax)
+                    # must add the color for the other upcoming trains as well
+                    if pax.should_it_try_to_board(self.boarding_prob_color): 
+                    
+                        pax.boarding_time = t
+                        pax.boarding_train_direction = self.direction
+                        self.passengers[level].append(pax)
+                        i += 1
+                        self.just_boarded.append(pax)
+    
+                        central_monitor_instance.all_passengers_boarded.append(pax)
+                    else:
+                        # decided to wait (not board this train)
+                        # go back to station queue
+                        station.secondary_queue[level].append(pax)
+                        pax.number_of_denied_boardings_out_of_choice[level] += 1
+                        central_monitor_instance.passenger_denied_boarding_out_of_choice[level].append([pax, t, station])                        
+                
+                # now pax who decided to wait, and entered the secondary queue, have to be re-inserted
+#==============================================================================
+#                 print station.secondary_queue[level]
+#                 print station.queue[level]
+#==============================================================================
+                station.queue[level].extendleft(station.secondary_queue[level])
+                # empty the secondary queue
+                station.secondary_queue[level].clear()
+                
+                
                 if denied :
+                    # some pax waiting on the platform will be denied boarding
                     j=0
                     for pax in station.queue[level]:
                         pax.number_of_denied_boardings[level] += 1
@@ -323,12 +372,20 @@ class Train(object):
         # check whether or not it has reached the station, or will reach and pass it if it moves, before calling this function
 #         print self.position
         self.position = self._move_train_one_dist(pt = self.position, distance=distance)
-        self.distance_to_next_station -= distance
-        self.time_to_next_station -= self.distance_to_next_station / distance 
+        # this needs to account for when it is dispatched from the garage
+        # distance = speed in what follows
+        if self.distance_to_next_station >= distance:
+            self.distance_to_next_station -= distance
+            # assign time from a new
+            self.time_to_next_station = self.distance_to_next_station / distance 
+
+        else:
+            self.distance_to_next_station = 0 
+            self.time_to_next_station = 0 
         
         if self.distance_to_the_next_NEXT_station : # so if the next next station is garage, and therefore distance is None
             self.distance_to_the_next_NEXT_station -= distance
-            self.time_to_next_NEXT_station -= self.distance_to_next_station / distance 
+            self.time_to_next_NEXT_station = self.distance_to_next_station / distance 
            
         
             
@@ -376,6 +433,9 @@ class Train(object):
             current_station.hist_queue["dp"].append(len(current_station.queue['P']))
             current_station.hist_queue["do"].append(len(current_station.queue['O']))
             current_station.hist_queue["t"].append(t)
+            
+            # add functionality for calculating the true probability of boarding the train
+                        
             
             # board pax
             self.load_passenger(central_monitor_instance, t, current_station)
@@ -429,6 +489,11 @@ class Train(object):
             self.distance_to_next_station = self.Param.station_distances[self.current_station_id][self.next_station_id]
             # get time to next station
             self.time_to_next_station = self.get_travel_time_to_next_station()
+            assert(self.time_to_next_station > 0)
+#==============================================================================
+#             print "departed station"
+#             print "time tp next station is " + str(self.time_to_next_station)
+#==============================================================================
             # add this train to the appropriate platform's upcoming trains 
             self._add_train_to_platform_upcoming(central_monitor_instance, self.next_station_id, self.time_to_next_station )
             
@@ -447,12 +512,34 @@ class Train(object):
                 self.distance_to_the_next_NEXT_station = None # since the next next station is the garage, so no point is keeping this
                 self.time_to_next_NEXT_station = None
             
-            
-            
+                        
             self.prev_station_id = self.current_station_id
             
-            
-            
+    def save_state_for_other_iterations(self):
+        
+        ''' 
+        Save train positions in a queue, to be used by future iterations 
+        poistion = [(lat, lon), (time to) next (next) stations ]
+        
+        '''
+        # append to end of the queue
+        info = {'position': self.position,
+                'current_station_id': self.current_station_id,
+                'next_station_id': self.next_station_id,
+                'next_NEXT_station_id' : self.next_NEXT_station_id, 
+                'time_to_next_station' : self.time_to_next_station, 
+                'time_to_next_NEXT_station' : self.time_to_next_NEXT_station, 
+                'waiting' : self.waiting ,
+                'time_started_waiting': self.time_started_waiting,
+                'distance_to_next_station' : self.distance_to_next_station
+                }
+                
+        self._save_detailed_state_for_later.append(info)
+        
+#==============================================================================
+#         self._saved_positions =          
+#==============================================================================
+        
         
     def save_state(self, t, csv_writer):
         '''
@@ -504,8 +591,23 @@ class Train(object):
 
             else:
                 # if it has not reached a station yet
-#                 print "moving ", self.car_id
+                
+                print "t ", t
+                print "moving car id", self.car_id
+                print "time to next ", self.time_to_next_station
+                print "dist to next ", self.distance_to_next_station
+                print "current station id ", self.current_station_id
+                print "next station id ", self.next_station_id
                 self.move(self.Param.consecutive_speeds[self.prev_station_id][self.next_station_id])
+                print "t ", t
+                print "moving ", self.car_id
+                print "time to next ", self.time_to_next_station
+                print "dist to next ", self.distance_to_next_station
+                print "current station id ", self.current_station_id
+                print "next station id ", self.next_station_id                
+                assert(self.time_to_next_station >= 0)
+                    
+                    
 
 
         else:

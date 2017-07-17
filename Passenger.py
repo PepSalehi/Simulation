@@ -27,7 +27,8 @@ class Passenger(object):
         self._exit_times = []
         self.trips = defaultdict(lambda : defaultdict(list))
         self.number_of_denied_boardings = defaultdict(int)
-        
+        # for when they refuse to board because of their convivnience level
+        self.number_of_denied_boardings_out_of_choice = defaultdict(int)
     def get_travel_time(self):
         return self.exit_time - self.boarding_time
     def get_waiting_time(self):
@@ -58,8 +59,8 @@ class Passenger(object):
         self.boarding_time = None
         self.exit_time = None
     
-    def should_it_try_to_board(self):
-        pass 
+    def should_it_try_to_board(self, first_train_boarding_color):
+        return True 
     
         
         
