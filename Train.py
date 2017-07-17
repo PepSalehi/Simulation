@@ -592,19 +592,23 @@ class Train(object):
             else:
                 # if it has not reached a station yet
                 
-                print "t ", t
-                print "moving car id", self.car_id
-                print "time to next ", self.time_to_next_station
-                print "dist to next ", self.distance_to_next_station
-                print "current station id ", self.current_station_id
-                print "next station id ", self.next_station_id
+#==============================================================================
+#                 print "t ", t
+#                 print "moving car id", self.car_id
+#                 print "time to next ", self.time_to_next_station
+#                 print "dist to next ", self.distance_to_next_station
+#                 print "current station id ", self.current_station_id
+#                 print "next station id ", self.next_station_id
+#==============================================================================
                 self.move(self.Param.consecutive_speeds[self.prev_station_id][self.next_station_id])
-                print "t ", t
-                print "moving ", self.car_id
-                print "time to next ", self.time_to_next_station
-                print "dist to next ", self.distance_to_next_station
-                print "current station id ", self.current_station_id
-                print "next station id ", self.next_station_id                
+#==============================================================================
+#                 print "t ", t
+#                 print "moving ", self.car_id
+#                 print "time to next ", self.time_to_next_station
+#                 print "dist to next ", self.distance_to_next_station
+#                 print "current station id ", self.current_station_id
+#                 print "next station id ", self.next_station_id                
+#==============================================================================
                 assert(self.time_to_next_station >= 0)
                     
                     
