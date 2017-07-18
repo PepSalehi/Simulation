@@ -37,8 +37,8 @@ class Platform(object):
         # keep track of approaching trains and their distance (or time)
         # {train_id : time_to_get}
         self.upcoming_trains = defaultdict(int)
-        # {train_id : ['red', 'blue']}
-        self.train_colors = defaultdict(deque)
+        # queue({train_id, color})
+        self.train_colors = deque()
         
         
     def get_transfer_time(self, line1):

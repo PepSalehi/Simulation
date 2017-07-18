@@ -128,24 +128,23 @@ def run_simulation(simulation_time, god_template, csv_file, st_csv_file, victori
             for _, train_list in god.monitors["Victoria"]._trains.iteritems():
                 for train in train_list:
                     train.save_state_for_other_iterations()
-#==============================================================================
-#         if t % (60 ) == 0:
-#             # write state to file
-#             # Central
-#             for _, train_list in god.monitors["Central"]._trains.iteritems():
-#                 for train in train_list:
-#                     train.save_state(t, csv_writer)
-#             for station in god.monitors["Central"].stations:
-#                 station.save_state(t, st_csv_writer)
-#                 
-#             # write state to file
-#             # Victoria 
-#             for _, train_list in god.monitors["Victoria"]._trains.iteritems():
-#                 for train in train_list:
-#                     train.save_state(t, victoria_csv_writer)
-#             for station in god.monitors["Victoria"].stations:
-#                 station.save_state(t, victoria_st_csv_writer)
-#==============================================================================
+                    
+        if t % (60 ) == 0:
+            # write state to file
+            # Central
+            for _, train_list in god.monitors["Central"]._trains.iteritems():
+                for train in train_list:
+                    train.save_state(t, csv_writer)
+            for station in god.monitors["Central"].stations:
+                station.save_state(t, st_csv_writer)
+                
+            # write state to file
+            # Victoria 
+            for _, train_list in god.monitors["Victoria"]._trains.iteritems():
+                for train in train_list:
+                    train.save_state(t, victoria_csv_writer)
+            for station in god.monitors["Victoria"].stations:
+                station.save_state(t, victoria_st_csv_writer)
 
     print "DONE"
     

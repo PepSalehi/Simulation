@@ -48,6 +48,13 @@ class Train(object):
         self.has_arrived_at_station = False
         self.next_NEXT_station_id = None
         self.time_to_next_NEXT_station = None
+        ###
+        self.train_in_front = None # train object
+        self.train_in_back = None
+        self.distance_to_train_in_back = None # each train only tracks its distance to the trailing train. That other train will
+        # call this trains distance when it needs to adjust it 
+        self.MINIMUM_DIST_BTW_TRAINS = 20 # meters 
+        ###
         
         self.passengers = defaultdict(list)
         
@@ -111,6 +118,15 @@ class Train(object):
                 # add functionality for calculating the true probability of boarding the train
                 prob_of_boarding = self._compute_boading_probability(station.queue[level], self.passengers[level])
                 self.boarding_prob_color = self._compute_train_prob_color(prob_of_boarding)
+                
+                #==============================================================================
+
+                info = {'car_id' : self.car_id, 
+                        'boarding_prob_color' : self.boarding_prob_color, 
+                        'prob_of_boarding' : prob_of_boarding}
+                station.train_colors.append(info)
+    
+                #==============================================================================
                 
                 # read other upcoming trains colors 
                 
@@ -364,15 +380,38 @@ class Train(object):
                 print " moved passed the end of line, should've caught it before calling this function! "
 
     
+    def _get_distance_to_front_train(self):
+        # if there is a train in front of it 
+        if self.train_in_front:
+            
+            print self.car_id
+            print self.train_in_front.car_id
+            print self.train_in_front.distance_to_train_in_back
+            print self.MINIMUM_DIST_BTW_TRAINS
+            
+            # get the distance to it
+            current_dist = self.train_in_front.distance_to_train_in_back
+            assert(current_dist >= self.MINIMUM_DIST_BTW_TRAINS)
+            return current_dist
+        else:
+            # large number! 
+            return 10000000
     
     
     def move(self, distance=None):
         if distance == None: distance = Train.SPEED
         
         # check whether or not it has reached the station, or will reach and pass it if it moves, before calling this function
+        current_dist_to_front_train = self._get_distance_to_front_train()
+        # if there is NOT enough space btw this and the train in front once the train is moved
+        if current_dist_to_front_train - distance < self.MINIMUM_DIST_BTW_TRAINS:
+             # adjust speed (i.e. distance varaible)
+            distance = current_dist_to_front_train - self.MINIMUM_DIST_BTW_TRAINS - 1
+        
 #         print self.position
         self.position = self._move_train_one_dist(pt = self.position, distance=distance)
-        # this needs to account for when it is dispatched from the garage
+        # keep track of how far it has come from the garage 
+        self.distance_from_garage += distance
         # distance = speed in what follows
         if self.distance_to_next_station >= distance:
             self.distance_to_next_station -= distance
@@ -403,7 +442,7 @@ class Train(object):
             line_all = self.Param.line
         # set current station id
         self.current_station_id = self.next_station_id #  it has arrived at the next station
-        station = central_monitor_instance.return_station_by_id(self.current_station_id)
+      
 #         self.position  = station.position
         self.position = line_all.interpolate(line_all.project(self.position) + self.distance_to_next_station)
 #         self.position = self.Param.station_positions[self.current_station_id]
@@ -593,14 +632,14 @@ class Train(object):
                 # if it has not reached a station yet
                 
 #==============================================================================
-#                 print "t ", t
-#                 print "moving car id", self.car_id
-#                 print "time to next ", self.time_to_next_station
-#                 print "dist to next ", self.distance_to_next_station
-#                 print "current station id ", self.current_station_id
-#                 print "next station id ", self.next_station_id
+                 print "t ", t
+                 print "moving car id", self.car_id
+                 print "time to next ", self.time_to_next_station
+                 print "dist to next ", self.distance_to_next_station
+                 print "current station id ", self.current_station_id
+                 print "next station id ", self.next_station_id
 #==============================================================================
-                self.move(self.Param.consecutive_speeds[self.prev_station_id][self.next_station_id])
+                 self.move(self.Param.consecutive_speeds[self.prev_station_id][self.next_station_id])
 #==============================================================================
 #                 print "t ", t
 #                 print "moving ", self.car_id
@@ -609,7 +648,7 @@ class Train(object):
 #                 print "current station id ", self.current_station_id
 #                 print "next station id ", self.next_station_id                
 #==============================================================================
-                assert(self.time_to_next_station >= 0)
+                 assert(self.time_to_next_station >= 0)
                     
                     
 
