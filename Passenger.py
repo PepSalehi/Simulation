@@ -59,8 +59,11 @@ class Passenger(object):
         self.boarding_time = None
         self.exit_time = None
     
-    def should_it_try_to_board(self, first_train_boarding_color):
-        return True 
+    def should_it_try_to_board(self, upcoming_trains_info, act_dumb = True):
+        if act_dumb : 
+            return True
+        else :
+            return True 
     
         
         

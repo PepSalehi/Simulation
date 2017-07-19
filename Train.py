@@ -4,9 +4,12 @@ Created on Mon Jul 10 15:02:10 2017
 
 @author: Peyman
 """
+from __future__ import division 
 from config import *
 from Param_Central import Param_Central, Param_Central_WE, Param_Central_EW
 from Param_Victoria import Param_Victoria, Param_Victoria_NS, Param_Victoria_SN
+
+
 
 class Train(object):
     # https://tfl.gov.uk/corporate/about-tfl/what-we-do/london-underground/rolling-stock
@@ -103,6 +106,14 @@ class Train(object):
             return 1
         else: 
             prob_of_boarding = remaining_cap / len(pax_queue)   
+            #
+#==============================================================================
+#             if prob_of_boarding < 1 :
+#                 print "remaining_cap ", remaining_cap
+#                 print "len(pax_queue)", len(pax_queue)
+#                 print "division ",  remaining_cap / len(pax_queue) 
+#==============================================================================
+            #
             return prob_of_boarding
         
     def load_passenger(self, central_monitor_instance,  t, station):
@@ -120,6 +131,11 @@ class Train(object):
                 prob_of_boarding = self._compute_boading_probability(station.queue[level], self.passengers[level])
                 self.boarding_prob_color = self._compute_train_prob_color(prob_of_boarding)
                 
+#==============================================================================
+#                 if prob_of_boarding < 1:
+#                     print("prob_of_boarding " + str( prob_of_boarding)) 
+#                     print "station name ", station.ids, station.direction, station.line
+#==============================================================================
                 #==============================================================================
 
                 info = {'car_id' : self.car_id, 
@@ -138,7 +154,7 @@ class Train(object):
                 while len(self.passengers[level]) < self.CAPACITY and len(station.queue[level]) > 0:
                     pax = station.queue[level].pop()
                     # must add the color for the other upcoming trains as well
-                    if pax.should_it_try_to_board(self.boarding_prob_color): 
+                    if pax.should_it_try_to_board(station.upcoming_trains, act_dumb = True): 
                     
                         pax.boarding_time = t
                         pax.boarding_train_direction = self.direction
@@ -395,11 +411,14 @@ class Train(object):
             # get the distance to it
             current_dist = self.train_in_front.distance_to_train_in_back
             if current_dist < self.MINIMUM_DIST_BTW_TRAINS:
-                print "####################"
-                print "minimum distance violated "
-                print "car id ", self.car_id
-                print "front car id ", self.train_in_front.car_id
-                print "current dist ", current_dist 
+                pass 
+#==============================================================================
+#                 print "####################"
+#                 print "minimum distance violated "
+#                 print "car id ", self.car_id
+#                 print "front car id ", self.train_in_front.car_id
+#                 print "current dist ", current_dist 
+#==============================================================================
 #==============================================================================
 #             assert(current_dist >= self.MINIMUM_DIST_BTW_TRAINS)
 #==============================================================================
