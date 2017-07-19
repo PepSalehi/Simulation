@@ -77,7 +77,9 @@ class Param_Central_WE(Param_Central):
     stations = [(i) for i in route_nlcs]
     
     # headways
-    headways = deque(np.array(Param_Central.headways_dic['Ealing Broadway-West Acton']))
+    headways = np.array(Param_Central.headways_dic['Ealing Broadway-West Acton']) * 0.5
+    headways = headways.astype(int)
+    headways = deque(headways)
     timer = 0   
     extra_headways_fro_empty_trains = list(np.repeat(300, 12 ))
     headways.extendleft(extra_headways_fro_empty_trains)
@@ -119,7 +121,9 @@ class Param_Central_EW(Param_Central):
     
     # headways
     timer = 0  
-    headways = deque(np.array(Param_Central.headways_dic['Epping-Theydon Bois']))
+    headways = np.array(Param_Central.headways_dic['Epping-Theydon Bois'])* 0.7
+    headways = headways.astype(int)
+    headways = deque(headways)
     extra_headways_for_empty_trains = list(np.repeat(300, 12 ))
     headways.extendleft(extra_headways_for_empty_trains)
      

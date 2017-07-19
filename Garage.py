@@ -20,6 +20,8 @@ class Garage(object):
         train.is_in_service = False
         train.direction = self.Param.direction
         train.Param = self.Param
+        train.next_platform = None
+        train.next_next_platform = None
         print 'train', str(train.car_id), 'joined the queue ', str(self.garage_name)
         # 
         train.distance_from_garage = 0
@@ -30,10 +32,12 @@ class Garage(object):
         train.train_in_back = None
         train.train_in_front = None
         train.distance_to_train_in_back = None
+        train.it_has_reached_a_station = False 
         # 
         
     def dispatch_train(self, t):
         dispatched_train = self.queue.popleft()
+ 
         dispatched_train.next_station_id = self.Param.stations[0]
         dispatched_train.prev_station_id = self.garage_name
         dispatched_train.is_in_service = True
@@ -45,6 +49,7 @@ class Garage(object):
             self.last_dispatched_train.train_in_back = dispatched_train
             self.last_dispatched_train.distance_to_train_in_back = self.last_dispatched_train.distance_from_garage
             dispatched_train.train_in_front = self.last_dispatched_train
+            
             
 #==============================================================================
 #             dist_from_g = self.last_dispatched_train.distance_from_garage

@@ -13,14 +13,14 @@ from copy import deepcopy
 
 
 simulation_time = Param_Central.SIMULATION_TIME #
-simulation_time = 10000/2
+simulation_time = 10000
 MAX_POSITION = max(Param_Central.station_positions.values())
 update_interval = 30
 #==============================================================================
 # This part must be shared between real-life and the decision support simulations
 #     
 #==============================================================================
-# central_monitor_instance = CentralMonitor("Central")
+# central_monitor_instance = CentralMonitor("Centsral")
 # victoria_central_monitor_instance = CentralMonitor("Victoria")
 god = God()
 god.make_central_monitor("Central")
@@ -56,6 +56,8 @@ def run_simulation(simulation_time, god_template, csv_file, st_csv_file, victori
     start_time = time.time()
     # since we need to keep the original god intact, as the other simulation should use the same one for initialization
     god = deepcopy(god_template)
+    the_file = open('train_log.txt', 'wb') 
+    the_file_writer = csv.writer(the_file)
     for t in range(0, int(simulation_time)):
     
         # produce passengers every 15 minutes. Needed to update demand as new obs. come in every 15 minutes
@@ -129,6 +131,25 @@ def run_simulation(simulation_time, god_template, csv_file, st_csv_file, victori
                 for train in train_list:
                     train.save_state_for_other_iterations()
                     
+                    
+                    
+            ############################
+            for _, train_list in god.monitors["Central"]._trains.iteritems():
+                tr = train_list[0]
+                break
+            if tr.is_in_service :
+                                          
+                if not tr.waiting:
+#                    print t, tr.car_id, tr.distance_from_garage, tr.distance_to_train_in_back 
+                    the_file_writer.writerow([tr.car_id, tr.distance_from_garage, tr.distance_to_train_in_back  ])
+                else:
+#                    print "Waiting"
+                    the_file_writer.writerow(["Waiting"])
+        
+                        
+
+            
+            
         if t % (60 ) == 0:
             # write state to file
             # Central

@@ -37,8 +37,8 @@ class Platform(object):
         # keep track of approaching trains and their distance (or time)
         # {train_id : time_to_get}
         self.upcoming_trains = defaultdict(int)
-        # queue({train_id, color})
-        self.train_colors = deque()
+        # {train_id : queue(color)}
+        self.train_colors = defaultdict(lambda: deque())
         
         
     def get_transfer_time(self, line1):
@@ -146,6 +146,11 @@ class Platform(object):
         if not self.is_occupied:
             self.time_since_occupied += 1
         
+#==============================================================================
+#         if len(self.upcoming_trains) > 0 and self.direction == "WE" and self.ids == 669:
+#             print self.ids, " ", self.direction
+#             print self.upcoming_trains
+#==============================================================================
         # update status every 30 seconds
         if t % (1*30) == 0:
 #             self.request_next_train_info(t)

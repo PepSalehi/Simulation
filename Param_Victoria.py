@@ -76,7 +76,9 @@ class Param_Victoria_SN(Param_Victoria):
     stations = [(i) for i in route_nlcs]
     
     # headways
-    headways = deque(Param_Victoria.headways_dic['Brixton-Stockwell'])
+    headways = np.array(Param_Victoria.headways_dic['Brixton-Stockwell']) * 1.2
+    headways = headways.astype(int)
+    headways = deque(headways)
     timer = 0 
     extra_headways_fro_empty_trains = list(np.repeat(300, 12 ))
     headways.extendleft(extra_headways_fro_empty_trains)
@@ -122,7 +124,9 @@ class Param_Victoria_NS(Param_Victoria):
 
     # headways
     extra_headways_fro_empty_trains = list(np.repeat(300, 12 ))
-    headways = deque(Param_Victoria.headways_dic['Walthamstow Central-Blackhorse Road'])
+    headways = np.array(Param_Victoria.headways_dic['Walthamstow Central-Blackhorse Road'] )
+    headways = headways.astype(int)
+    headways = deque(headways)
     headways.extendleft(extra_headways_fro_empty_trains)
     timer = 0 
 
