@@ -142,7 +142,12 @@ class Train(object):
                         'boarding_prob_color' : self.boarding_prob_color, 
                         'prob_of_boarding' : prob_of_boarding}
                 station.train_colors[self.car_id].append(info)
-    
+                
+                #
+                if self.car_id == '3142' and station.ids == '729':
+                    print self.car_id, station.ids, info
+                #
+   
                 #==============================================================================
                 
                 # read other upcoming trains colors 
@@ -154,7 +159,7 @@ class Train(object):
                 while len(self.passengers[level]) < self.CAPACITY and len(station.queue[level]) > 0:
                     pax = station.queue[level].pop()
                     # must add the color for the other upcoming trains as well
-                    if pax.should_it_try_to_board(station.upcoming_trains, act_dumb = True): 
+                    if pax.should_it_try_to_board(station.upcoming_trains): 
                     
                         pax.boarding_time = t
                         pax.boarding_train_direction = self.direction
@@ -191,6 +196,12 @@ class Train(object):
             else:
                 # if after unloading the passengers, there is still no room for new pax to board
                 denied = True
+                info = {'car_id' : self.car_id, 
+                        'boarding_prob_color' : 'red', 
+                        'prob_of_boarding' : 0}
+                        
+                station.train_colors[level][self.car_id].append(info)
+                
                 for pax in station.queue[level]:
                         pax.number_of_denied_boardings[level] += 1
                         central_monitor_instance.passenger_denied_boarding[level].append([pax, t, station])
@@ -563,11 +574,34 @@ class Train(object):
 #             self.start_over(t=t)
             pass
     
-    def _add_train_to_platform_upcoming(self, central_monitor_instance, station_id, time_to_station):
+    def _add_train_to_platform_upcoming(self, central_monitor_instance, station_id, time_to_station, t= None):
         # add this train to the appropriate platform's upcoming trains 
         next_station_instance = central_monitor_instance.return_station_by_id(station_id)
-        next_platform_instance = next_station_instance.platforms[self.direction]       
-        next_platform_instance.upcoming_trains[self.car_id] = time_to_station
+        next_platform_instance = next_station_instance.platforms[self.direction]  
+        # read the train's color
+        # if this is NOT the first run, and hence the colors had been recorded previously
+        if next_platform_instance.imported_train_colors:
+            try :
+                train_info = next_platform_instance.imported_train_colors[self.car_id].popleft()
+            except: 
+                print "sth went wrong reading train info"
+                print "current station id ", self.current_station_id
+                print " next station id ", station_id
+                print "time to station " , time_to_station
+                print  "platform ", next_platform_instance.ids, next_platform_instance.direction
+                print "car id ", self.car_id
+                print "next_platform_instance.imported_train_colors keys", next_platform_instance.imported_train_colors.keys()
+                print "next_platform_instance.imported_train_colors", next_platform_instance.imported_train_colors
+                print "upcoming next ", next_platform_instance.upcoming_trains      
+                if t :
+                    print " t is ", t
+                next_platform_instance.imported_train_colors[self.car_id].popleft()                
+                
+            next_platform_instance.upcoming_trains[self.car_id] = [time_to_station, train_info]
+        #
+        else :
+            # This is the first run, and hence the train colors do not yet exist 
+            next_platform_instance.upcoming_trains[self.car_id] = [time_to_station, None]
 
         
         
@@ -623,7 +657,7 @@ class Train(object):
 #             print "time tp next station is " + str(self.time_to_next_station)
 #==============================================================================
             # add this train to the appropriate platform's upcoming trains 
-            self._add_train_to_platform_upcoming(central_monitor_instance, self.next_station_id, self.time_to_next_station )
+            self._add_train_to_platform_upcoming(central_monitor_instance, self.next_station_id, self.time_to_next_station,t )
             #==============================================================================
             # save a reference to this platform 
             _next_station_instance = central_monitor_instance.return_station_by_id(self.next_station_id)
@@ -639,7 +673,8 @@ class Train(object):
                 self.time_to_next_NEXT_station = self.time_to_next_station + self.Param.station_travel_times[self.next_station_id][self.next_NEXT_station_id]
                 
                 # add this train to the appropriate platform's upcoming trains 
-                self._add_train_to_platform_upcoming(central_monitor_instance, self.next_NEXT_station_id, self.time_to_next_NEXT_station )
+                self._add_train_to_platform_upcoming(central_monitor_instance, 
+                                                     self.next_NEXT_station_id, self.time_to_next_NEXT_station, t )
                 #==============================================================================
                 # save a reference to this platform 
                 _next_next_station_instance = central_monitor_instance.return_station_by_id(self.next_NEXT_station_id)

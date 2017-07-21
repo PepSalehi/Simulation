@@ -52,10 +52,43 @@ victoria_st_csv_writer.writerow(('t', 'station_id', 'platform', 'queue', 'hist_q
 # Simulation specific
 #==============================================================================
 
-def run_simulation(simulation_time, god_template, csv_file, st_csv_file, victoria_csv_file, victoria_st_csv_file, update_interval ):
+def run_simulation(simulation_time, god_template, csv_file, st_csv_file, victoria_csv_file, 
+                   victoria_st_csv_file, update_interval, prev_god = None, act_dumb= True ):
     start_time = time.time()
     # since we need to keep the original god intact, as the other simulation should use the same one for initialization
     god = deepcopy(god_template)
+    
+    def read_train_colors_from_god(this_god, some_god):
+        
+        
+        for name in some_god.monitors.keys():
+            
+            for n2, train_list in this_god.monitors[name]._trains.iteritems():    
+                this_god_trains = [train.car_id for train in train_list ]
+            for n2, train_list in this_god.monitors[name]._trains.iteritems():  
+                prev_god_trains = [train.car_id for train in train_list ]
+            assert (this_god_trains == prev_god_trains )
+            print "trains are the same " 
+            
+            this_run_stations = this_god.monitors[name].stations
+            prev_run_stations = some_god.monitors[name].stations
+            
+            for this_station, prev_station in zip(this_run_stations, prev_run_stations ): 
+                for plat_name, this_plat in this_station.platforms.iteritems():
+                    prev_plat = prev_station.platforms[plat_name]
+                    assert (prev_plat.ids == this_plat.ids)
+                    assert (prev_plat.direction == this_plat.direction)
+                    # import train colors 
+                    this_plat.imported_train_colors = prev_plat.train_colors
+                        
+    if prev_god:
+        # assert trains are the same
+        
+        # read train colors 
+        read_train_colors_from_god(god, prev_god)
+        
+        
+        
     the_file = open('train_log.txt', 'wb') 
     the_file_writer = csv.writer(the_file)
     for t in range(0, int(simulation_time)):
@@ -64,9 +97,9 @@ def run_simulation(simulation_time, god_template, csv_file, st_csv_file, victori
     #    if t % (15*60) == 0:
         if t >= (60 * 60) and t % (15*60) == 0: # give an hour warm up
     #        t = t - (60*60)
-            [station.produce_passsengers(god.monitors["Central"], t_offset=t) 
+            [station.produce_passsengers(god.monitors["Central"], act_dumb = act_dumb, t_offset=t ) 
                                  for station in god.monitors["Central"].stations[0:len(god.monitors["Central"].stations)-1]]
-            [station.produce_passsengers(god.monitors["Victoria"], t_offset=t) 
+            [station.produce_passsengers(god.monitors["Victoria"], act_dumb=act_dumb, t_offset=t ) 
                                  for station in god.monitors["Victoria"].stations[0:len(god.monitors["Victoria"].stations)-1]]
     
         # dispatch trains from garage every HEADWAY minutes
@@ -133,12 +166,11 @@ def run_simulation(simulation_time, god_template, csv_file, st_csv_file, victori
                     
                     
                     
-            ############################
+            ############################ debugging
             for _, train_list in god.monitors["Central"]._trains.iteritems():
                 tr = train_list[0]
                 break
             if tr.is_in_service :
-                                          
                 if not tr.waiting:
 #                    print t, tr.car_id, tr.distance_from_garage, tr.distance_to_train_in_back 
                     the_file_writer.writerow([tr.car_id, tr.distance_from_garage, tr.distance_to_train_in_back  ])
@@ -146,7 +178,7 @@ def run_simulation(simulation_time, god_template, csv_file, st_csv_file, victori
 #                    print "Waiting"
                     the_file_writer.writerow(["Waiting"])
         
-                        
+            ###########################       
 
             
             
@@ -184,8 +216,28 @@ def run_simulation(simulation_time, god_template, csv_file, st_csv_file, victori
 #==============================================================================
 DS_god = run_simulation(simulation_time, god, csv_file, st_csv_file, victoria_csv_file, victoria_st_csv_file, update_interval )
 
+print "#############################################"
+print "Start the second iteration "
+csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv/trains_states.csv", 'ab') 
+csv_writer = csv.writer(csv_file)  
+csv_writer.writerow(('t', 'car_id', 'position', 'load', 'load_history_array', "next_station_id"))
 
+st_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv\\stations_states.csv", 'ab') 
+st_csv_writer = csv.writer(st_csv_file)  
+st_csv_writer.writerow(('t', 'station_id', 'platform', 'queue', 'hist_queue_array'))
 
+victoria_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv/trains_states_victoria.csv", 'ab') 
+victoria_csv_writer = csv.writer(victoria_csv_file)  
+victoria_csv_writer.writerow(('t', 'car_id', 'position', 'load', 'load_history_array', "next_station_id"))
+
+victoria_st_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv\\stations_states_victoria.csv", 'ab') 
+victoria_st_csv_writer = csv.writer(victoria_st_csv_file)  
+victoria_st_csv_writer.writerow(('t', 'station_id', 'platform', 'queue', 'hist_queue_array'))
+
+DS_god_second_iterations = run_simulation(simulation_time, god, csv_file, st_csv_file,
+                                          victoria_csv_file, victoria_st_csv_file, update_interval,
+                                          prev_god=DS_god, act_dumb = False )
+print "#############################################"
 
 
 

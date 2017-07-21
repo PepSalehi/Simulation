@@ -7,7 +7,7 @@ Created on Mon Jul 10 15:02:40 2017
 from config import * 
 class Passenger(object):
     
-    def __init__(self, entry_station, exit_stations, entry_time):
+    def __init__(self, entry_station, exit_stations, entry_time, act_dumb):
         
         self.entry_station = entry_station
         self.exit_stations = deque(list(exit_stations))
@@ -29,6 +29,9 @@ class Passenger(object):
         self.number_of_denied_boardings = defaultdict(int)
         # for when they refuse to board because of their convivnience level
         self.number_of_denied_boardings_out_of_choice = defaultdict(int)
+        
+        self.act_dumb = act_dumb        
+        
     def get_travel_time(self):
         return self.exit_time - self.boarding_time
     def get_waiting_time(self):
@@ -59,8 +62,8 @@ class Passenger(object):
         self.boarding_time = None
         self.exit_time = None
     
-    def should_it_try_to_board(self, upcoming_trains_info, act_dumb = True):
-        if act_dumb : 
+    def should_it_try_to_board(self, upcoming_trains_info):
+        if self.act_dumb : 
             return True
         else :
             return True 

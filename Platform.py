@@ -18,7 +18,7 @@ class Platform(object):
         self.observed_queue = deque()
         self.predicted_queue = deque()
         # secondary queue for pax who decide to not board the train
-        self.secondary_queue =defaultdict(deque)
+        self.secondary_queue = defaultdict(deque)
         # a way to enforce trains don't move head to end
         self.is_occupied = False
         self.time_since_occupied = 100000
@@ -39,6 +39,7 @@ class Platform(object):
         self.upcoming_trains = defaultdict(int)
         # {train_id : queue(color)}
         self.train_colors = defaultdict(lambda: deque())
+        self.imported_train_colors = None 
         
         
     def get_transfer_time(self, line1):
@@ -54,7 +55,7 @@ class Platform(object):
             return random.randint(15,60)
                 
     
-    def _populate_demand(self, central_monitor_instance, demand_dict, t_offset, section, time_range = 15*60 ): 
+    def _populate_demand(self, central_monitor_instance, demand_dict, t_offset, section, act_dumb, time_range = 15*60 ): 
 
         for destinations, demand_time in demand_dict[self.ids][self.direction].iteritems():
             # demand during time_period t_offset
@@ -62,7 +63,7 @@ class Platform(object):
             # create passengers
             for _ in range(1, demand+1):
                 # arrival time is now uniformly distributed during the 15 minutes interval 
-                pax = Passenger(entry_station = self.ids, exit_stations = destinations, entry_time = int(random.uniform(t_offset, t_offset + time_range)))
+                pax = Passenger(entry_station = self.ids, exit_stations = destinations, entry_time = int(random.uniform(t_offset, t_offset + time_range)), act_dumb = act_dumb)
                 if section == "H":
                     central_monitor_instance.all_passengers_created_historical.append(pax) 
                     self.pax_list["H"].append(pax)
@@ -73,15 +74,15 @@ class Platform(object):
                     central_monitor_instance.all_passengers_created_predicted.append(pax) 
                     self.pax_list["P"].append(pax)
                 
-    def produce_passsengers(self, central_monitor_instance, t_offset, time_range = 15*60):
+    def produce_passsengers(self, central_monitor_instance, t_offset, act_dumb, time_range = 15*60):
         # there should be no unproduced passengers from last interval
 #         assert len(self.pax_list) == 0
 #         self.pax_list = defaultdict(list)
 
         
-        self._populate_demand(central_monitor_instance, central_monitor_instance.station_demands_observed, t_offset, "O" )
-        self._populate_demand(central_monitor_instance, central_monitor_instance.station_demands_historical, t_offset, "H" )
-        self._populate_demand(central_monitor_instance, central_monitor_instance.station_demands_predicted, t_offset, "P" )
+        self._populate_demand(central_monitor_instance, central_monitor_instance.station_demands_observed, t_offset, "O" , act_dumb)
+        self._populate_demand(central_monitor_instance, central_monitor_instance.station_demands_historical, t_offset, "H", act_dumb )
+        self._populate_demand(central_monitor_instance, central_monitor_instance.station_demands_predicted, t_offset, "P", act_dumb )
 
         self.demand_rate["O"] = len(self.pax_list["O"]) / time_range
         self.demand_rate["H"] = len(self.pax_list["H"]) / time_range
@@ -138,7 +139,12 @@ class Platform(object):
     
     def save_state_for_other_iterations(self):
         pass 
-        
+    
+    def update_upcoming_trains_status(self):
+        # read the color of trains in the upcoming trains queue
+#        for train_id, time_to_reach  in self.upcoming_trains.iteritems():
+            
+        pass 
     def update(self, t):
         # update Station for every epoch
         self.produce_passengers_per_t(t)
