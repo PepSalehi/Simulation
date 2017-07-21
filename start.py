@@ -22,9 +22,9 @@ update_interval = 30
 #==============================================================================
 # central_monitor_instance = CentralMonitor("Centsral")
 # victoria_central_monitor_instance = CentralMonitor("Victoria")
-god = God()
-god.make_central_monitor("Central")
-god.make_central_monitor("Victoria")   
+the_god = God()
+the_god.make_central_monitor("Central")
+the_god.make_central_monitor("Victoria")   
 #==============================================================================
 # god.distribute_trains("Central")
 # god.distribute_trains("Victoria")
@@ -214,7 +214,7 @@ def run_simulation(simulation_time, god_template, csv_file, st_csv_file, victori
 #==============================================================================
 # 
 #==============================================================================
-DS_god = run_simulation(simulation_time, god, csv_file, st_csv_file, victoria_csv_file, victoria_st_csv_file, update_interval )
+DS_god = run_simulation(simulation_time, the_god, csv_file, st_csv_file, victoria_csv_file, victoria_st_csv_file, update_interval )
 
 print "#############################################"
 print "Start the second iteration "
@@ -234,9 +234,11 @@ victoria_st_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-
 victoria_st_csv_writer = csv.writer(victoria_st_csv_file)  
 victoria_st_csv_writer.writerow(('t', 'station_id', 'platform', 'queue', 'hist_queue_array'))
 
-DS_god_second_iterations = run_simulation(simulation_time, god, csv_file, st_csv_file,
-                                          victoria_csv_file, victoria_st_csv_file, update_interval,
-                                          prev_god=DS_god, act_dumb = False )
+#==============================================================================
+# DS_god_second_iterations = run_simulation(simulation_time, the_god, csv_file, st_csv_file,
+#                                           victoria_csv_file, victoria_st_csv_file, update_interval,
+#                                           prev_god=DS_god, act_dumb = False )
+#==============================================================================
 print "#############################################"
 
 

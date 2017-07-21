@@ -59,6 +59,7 @@ class Train(object):
         self.MINIMUM_DIST_BTW_TRAINS = 10 # meters 
         ###
         self.next_platform = None
+        self.DEMAND_LEVEL = ["P"] # in list, cause it reduces the code change
         ###
         self.passengers = defaultdict(list)
         self.time_to_next_station = time_to_next_station # KEEP
@@ -89,6 +90,12 @@ class Train(object):
         self._save_detailed_state_for_later = deque()
 #         self.log_file = open((self.car_id)  + ' workfile.txt', 'w') # + str(random.randint(0,100000))
         
+    def set_demand_level(self, level):
+        if level in ["O", "P", "H"]:
+            self.DEMAND_LEVEL = [level] 
+        else:
+            raise "DEMAND LEVEL IS NOT IN ONE OF PREDEFINED CATEGORIES"
+            
     def _compute_train_prob_color(self, prob):
         if prob <= 0.2 :
             return "red"
@@ -125,7 +132,7 @@ class Train(object):
         station.is_occupied = True
         denied = False
         i = 0
-        for level in ["H", "O", "P"]:
+        for level in self.DEMAND_LEVEL:
             if len(self.passengers[level]) < self.CAPACITY:
                 # add functionality for calculating the TRUE probability of boarding the train
                 prob_of_boarding = self._compute_boading_probability(station.queue[level], self.passengers[level])
@@ -144,7 +151,7 @@ class Train(object):
                 station.train_colors[self.car_id].append(info)
                 
                 #
-                if self.car_id == '3142' and station.ids == '729':
+                if self.car_id == '1175' and station.ids == '729':
                     print self.car_id, station.ids, info
                 #
    
@@ -249,7 +256,7 @@ class Train(object):
         # reset the list
         self.just_offloaded = []
         #
-        for level in ["H", "O", "P"]:
+        for level in self.DEMAND_LEVEL:
             i = 0
 #             print "before", len(self.passengers[level])
             # THIS IS EXTREMELY IMPORTANT http://stackoverflow.com/a/1207427/2005352
@@ -301,7 +308,7 @@ class Train(object):
     def empty_load(self, central_monitor_instance, t):
         # for the last stop, so that it starts fresh at the beginnig of the line again
         # should set pax exit time and station
-        for level in ["H", "O", "P"]:
+        for level in self.DEMAND_LEVEL:
             for pax in self.passengers[level]:
                 pax.exit_time = t
                 pax.exit_station = self.Param.stations[len(self.Param.stations)-1]
@@ -368,7 +375,7 @@ class Train(object):
         exiting = defaultdict(list)
         adj = defaultdict(int)
         # basically, subtract the number of pax who will offload the train at the next station from current load
-        for level in ["H", "O", "P"]:
+        for level in self.DEMAND_LEVEL:
             exiting[level] = [pax  for pax in self.passengers[level] if pax.exit_station == self.next_station_id]
             adj[level] = int(self.get_load(level) - len(exiting[level]))
         return(adj)
@@ -489,17 +496,17 @@ class Train(object):
         if self.distance_to_next_station > distance:
             self.distance_to_next_station -= distance
             # assign time from a new
-            time_passed =  self.distance_to_next_station / distance 
-            self.time_to_next_station = time_passed
+            time_to =  self.distance_to_next_station / distance 
+            self.time_to_next_station = time_to
             #==============================================================================
             # update platform's board 
-            self.next_platform.upcoming_trains[self.car_id] = self.time_to_next_station
+            self.next_platform.upcoming_trains[self.car_id][0] = self.time_to_next_station
             #==============================================================================
             if self.distance_to_the_next_NEXT_station : # so if the next next station is garage, and therefore distance is None
                 self.distance_to_the_next_NEXT_station -= distance
-                self.time_to_next_NEXT_station = time_passed
+                self.time_to_next_NEXT_station -= 1 # this is second based, so it should workd this 
                 #==============================================================================
-                self.next_next_platform.upcoming_trains[self.car_id] = self.time_to_next_NEXT_station
+                self.next_next_platform.upcoming_trains[self.car_id][0] = self.time_to_next_NEXT_station
             #==============================================================================
         else:
             # think it is redundant, since has_it_reached_a_station has this logic as well
@@ -581,23 +588,32 @@ class Train(object):
         # read the train's color
         # if this is NOT the first run, and hence the colors had been recorded previously
         if next_platform_instance.imported_train_colors:
-            try :
-                train_info = next_platform_instance.imported_train_colors[self.car_id].popleft()
-            except: 
-                print "sth went wrong reading train info"
-                print "current station id ", self.current_station_id
-                print " next station id ", station_id
-                print "time to station " , time_to_station
-                print  "platform ", next_platform_instance.ids, next_platform_instance.direction
-                print "car id ", self.car_id
-                print "next_platform_instance.imported_train_colors keys", next_platform_instance.imported_train_colors.keys()
-                print "next_platform_instance.imported_train_colors", next_platform_instance.imported_train_colors
-                print "upcoming next ", next_platform_instance.upcoming_trains      
-                if t :
-                    print " t is ", t
-                next_platform_instance.imported_train_colors[self.car_id].popleft()                
-                
-            next_platform_instance.upcoming_trains[self.car_id] = [time_to_station, train_info]
+            if self.car_id not in next_platform_instance.upcoming_trains.keys() : # this is the first time  (i.e. never been next_next)
+                try :
+                    train_info = next_platform_instance.imported_train_colors[self.car_id].popleft()
+                    print "#############################################"
+                    print "nex_platform_instance_id" , next_platform_instance.ids
+                    print " next_platform_instance.upcoming_trains, before  ", next_platform_instance.upcoming_trains  
+                    print "#############################################"
+                except: 
+                    print "sth went wrong reading train info"
+                    print "current station id ", self.current_station_id
+                    print " next station id ", station_id
+                    print "time to station " , time_to_station
+                    print "platform ", next_platform_instance.ids, next_platform_instance.direction
+                    print "car id ", self.car_id
+                    print "next_platform_instance.imported_train_colors keys", next_platform_instance.imported_train_colors.keys()
+                    print "next_platform_instance.imported_train_colors", next_platform_instance.imported_train_colors
+                    print "upcoming next ", next_platform_instance.upcoming_trains      
+                    if t :
+                        print " t is ", t
+                    next_platform_instance.imported_train_colors[self.car_id].popleft()                
+                    
+                next_platform_instance.upcoming_trains[self.car_id] = [time_to_station, train_info]
+                print "#############################################"
+                print "nex_platform_instance_id" , next_platform_instance.ids
+                print " next_platform_instance.upcoming_trains, after  ", next_platform_instance.upcoming_trains  
+                print "#############################################"
         #
         else :
             # This is the first run, and hence the train colors do not yet exist 
@@ -635,7 +651,9 @@ class Train(object):
         self.it_has_reached_a_station = False 
         #        
         central_monitor_instance.train_trajectories[self.car_id].append(self.position)
-        for level in ["H", "O", "P"]:
+        
+        for level in self.DEMAND_LEVEL:
+            
             self._load_history[level].append(self.get_load(level))
             
         if self.current_station_id == self.Param.terminal_station:
