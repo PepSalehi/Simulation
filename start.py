@@ -16,6 +16,10 @@ simulation_time = Param_Central.SIMULATION_TIME #
 simulation_time = 10000
 MAX_POSITION = max(Param_Central.station_positions.values())
 update_interval = 30
+btw_simulation_gap = 1000 # 20 mins shorter simulation time for the second iteration
+first_iterations_simulation_time = simulation_time + 2 * btw_simulation_gap
+second_iterations_simulation_time = simulation_time + 1 * btw_simulation_gap
+third_iterations_simulation_time = simulation_time
 #==============================================================================
 # This part must be shared between real-life and the decision support simulations
 #     
@@ -54,6 +58,13 @@ victoria_st_csv_writer.writerow(('t', 'station_id', 'platform', 'queue', 'hist_q
 
 def run_simulation(simulation_time, god_template, csv_file, st_csv_file, victoria_csv_file, 
                    victoria_st_csv_file, update_interval, prev_god = None, act_dumb= True ):
+                       
+    # initialize timers/headways
+    param_central_EW = Param_Central_EW()                       
+    param_central_WE = Param_Central_WE()  
+    param_victoria_NS = Param_Victoria_NS() 
+    param_victoria_SN = Param_Victoria_SN()                   
+                       
     start_time = time.time()
     # since we need to keep the original god intact, as the other simulation should use the same one for initialization
     god = deepcopy(god_template)
@@ -103,12 +114,12 @@ def run_simulation(simulation_time, god_template, csv_file, st_csv_file, victori
                                  for station in god.monitors["Victoria"].stations[0:len(god.monitors["Victoria"].stations)-1]]
     
         # dispatch trains from garage every HEADWAY minutes
-        for param in [Param_Victoria_NS, Param_Victoria_SN]:
+        for param in [param_victoria_NS, param_victoria_SN]:
             if param.should_dispatch():
                 direction = param.direction
                 god.monitors["Victoria"].garages[direction].dispatch_train(t) 
                 
-        for param in [Param_Central_EW, Param_Central_WE]:
+        for param in [param_central_EW, param_central_WE]:
             if param.should_dispatch():
                 direction = param.direction
                 god.monitors["Central"].garages[direction].dispatch_train(t)
@@ -198,9 +209,16 @@ def run_simulation(simulation_time, god_template, csv_file, st_csv_file, victori
                     train.save_state(t, victoria_csv_writer)
             for station in god.monitors["Victoria"].stations:
                 station.save_state(t, victoria_st_csv_writer)
-
-    print "DONE"
+        
     
+    print "DONE"
+    # clean_up 
+    # Very important, otherwise dispatching is gonna be messed up for the other simulation
+    # but this is not the correct approach in general, because when this wants to continue, it
+    # has to remember where it was
+#    for param in [Param_Victoria_NS, Param_Victoria_SN, Param_Central_EW, Param_Central_WE]:
+#        param.timer = 0
+        
     end_time = time.time()    
     csv_file.close()
     st_csv_file.close()
@@ -209,12 +227,12 @@ def run_simulation(simulation_time, god_template, csv_file, st_csv_file, victori
     
     print (end_time - start_time)/60
     
-    return(god)
+    return(god, param_victoria_NS, param_victoria_SN, param_central_EW, param_central_WE)
     
 #==============================================================================
 # 
 #==============================================================================
-DS_god = run_simulation(simulation_time, the_god, csv_file, st_csv_file, victoria_csv_file, victoria_st_csv_file, update_interval )
+DS_god, param_victoria_NS, param_victoria_SN, param_central_EW, param_central_WE = run_simulation(first_iterations_simulation_time, the_god, csv_file, st_csv_file, victoria_csv_file, victoria_st_csv_file, update_interval )
 
 print "#############################################"
 print "Start the second iteration "
@@ -234,12 +252,33 @@ victoria_st_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-
 victoria_st_csv_writer = csv.writer(victoria_st_csv_file)  
 victoria_st_csv_writer.writerow(('t', 'station_id', 'platform', 'queue', 'hist_queue_array'))
 
-#==============================================================================
-# DS_god_second_iterations = run_simulation(simulation_time, the_god, csv_file, st_csv_file,
-#                                           victoria_csv_file, victoria_st_csv_file, update_interval,
-#                                           prev_god=DS_god, act_dumb = False )
-#==============================================================================
+DS_god_second_iterations, param_victoria_NS2, param_victoria_SN2, param_central_EW2, param_central_WE2 = run_simulation(second_iterations_simulation_time, 
+                                          the_god, csv_file, st_csv_file,
+                                          victoria_csv_file, victoria_st_csv_file, update_interval,
+                                          prev_god=DS_god, act_dumb = False )
 print "#############################################"
 
 
+print "#############################################"
+print "Start the third iteration "
+csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv/trains_states.csv", 'ab') 
+csv_writer = csv.writer(csv_file)  
+csv_writer.writerow(('t', 'car_id', 'position', 'load', 'load_history_array', "next_station_id"))
 
+st_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv\\stations_states.csv", 'ab') 
+st_csv_writer = csv.writer(st_csv_file)  
+st_csv_writer.writerow(('t', 'station_id', 'platform', 'queue', 'hist_queue_array'))
+
+victoria_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv/trains_states_victoria.csv", 'ab') 
+victoria_csv_writer = csv.writer(victoria_csv_file)  
+victoria_csv_writer.writerow(('t', 'car_id', 'position', 'load', 'load_history_array', "next_station_id"))
+
+victoria_st_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv\\stations_states_victoria.csv", 'ab') 
+victoria_st_csv_writer = csv.writer(victoria_st_csv_file)  
+victoria_st_csv_writer.writerow(('t', 'station_id', 'platform', 'queue', 'hist_queue_array'))
+
+DS_god_third_iterations, param_victoria_NS3, param_victoria_SN3, param_central_EW3, param_central_WE3 = run_simulation(third_iterations_simulation_time, 
+                                          the_god, csv_file, st_csv_file,
+                                          victoria_csv_file, victoria_st_csv_file, update_interval,
+                                          prev_god=DS_god_second_iterations, act_dumb = False )
+print "#############################################"

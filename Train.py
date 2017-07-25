@@ -83,6 +83,7 @@ class Train(object):
         self.dwell = False
         self.dwell_time_spent = 10000
         self.DWELL = 15 # seconds
+        self._dispatch_times = []
         ## 
         self.stations_visited = {}
         self._saved_states = {}
@@ -148,6 +149,7 @@ class Train(object):
                 info = {'car_id' : self.car_id, 
                         'boarding_prob_color' : self.boarding_prob_color, 
                         'prob_of_boarding' : prob_of_boarding}
+                        
                 station.train_colors[self.car_id].append(info)
                 
                 #
@@ -207,7 +209,7 @@ class Train(object):
                         'boarding_prob_color' : 'red', 
                         'prob_of_boarding' : 0}
                         
-                station.train_colors[level][self.car_id].append(info)
+                station.train_colors[self.car_id].append(info)
                 
                 for pax in station.queue[level]:
                         pax.number_of_denied_boardings[level] += 1
@@ -591,10 +593,12 @@ class Train(object):
             if self.car_id not in next_platform_instance.upcoming_trains.keys() : # this is the first time  (i.e. never been next_next)
                 try :
                     train_info = next_platform_instance.imported_train_colors[self.car_id].popleft()
-                    print "#############################################"
-                    print "nex_platform_instance_id" , next_platform_instance.ids
-                    print " next_platform_instance.upcoming_trains, before  ", next_platform_instance.upcoming_trains  
-                    print "#############################################"
+#==============================================================================
+#                     print "#############################################"
+#                     print "nex_platform_instance_id" , next_platform_instance.ids
+#                     print " next_platform_instance.upcoming_trains, before  ", next_platform_instance.upcoming_trains  
+#                     print "#############################################"
+#==============================================================================
                 except: 
                     print "sth went wrong reading train info"
                     print "current station id ", self.current_station_id
@@ -610,10 +614,12 @@ class Train(object):
                     next_platform_instance.imported_train_colors[self.car_id].popleft()                
                     
                 next_platform_instance.upcoming_trains[self.car_id] = [time_to_station, train_info]
-                print "#############################################"
-                print "nex_platform_instance_id" , next_platform_instance.ids
-                print " next_platform_instance.upcoming_trains, after  ", next_platform_instance.upcoming_trains  
-                print "#############################################"
+#==============================================================================
+#                 print "#############################################"
+#                 print "nex_platform_instance_id" , next_platform_instance.ids
+#                 print " next_platform_instance.upcoming_trains, after  ", next_platform_instance.upcoming_trains  
+#                 print "#############################################"
+#==============================================================================
         #
         else :
             # This is the first run, and hence the train colors do not yet exist 
@@ -640,8 +646,6 @@ class Train(object):
 #         print (self.prev_station_id )
 #==============================================================================
 
-        
-        
         del current_platform_instance.upcoming_trains[self.car_id]
         
         

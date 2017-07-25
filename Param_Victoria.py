@@ -52,19 +52,33 @@ class Param_Victoria(object):
         open("C:/Users/Peyman.n/Dropbox/Research/projects/Crowding/victoria_station_lookup_by_nlc.p"))
 
     
-    @classmethod 
-    def should_dispatch(cls):
+#==============================================================================
+#     @classmethod 
+#     def should_dispatch(cls):
+#         '''
+#         it should be called, by its children, on e every time step to see a train must be dispatched 
+#         '''
+#         # time to change
+#         if cls.timer == 0 :
+#             hd = cls.headways.popleft()
+#             cls.timer = hd
+#             return(True)
+#         else:
+#             cls.timer -= 1 
+#             return(False)
+#==============================================================================
+    def should_dispatch(self):
         '''
         it should be called, by its children, on e every time step to see a train must be dispatched 
         '''
         # time to change
-        if cls.timer == 0 :
-            hd = cls.headways.popleft()
-            cls.timer = hd
+        if self.timer == 0 :
+            hd = self.headways.popleft()
+            self.timer = hd
             return(True)
         else:
-            cls.timer -= 1 
-            return(False)
+            self.timer -= 1 
+            return(False)    
 
 class Param_Victoria_SN(Param_Victoria):
     suffix = " SN"
@@ -75,13 +89,15 @@ class Param_Victoria_SN(Param_Victoria):
     route_nlcs = Param_Victoria.route_nlcs    
     stations = [(i) for i in route_nlcs]
     
-    # headways
-    headways = np.array(Param_Victoria.headways_dic['Brixton-Stockwell']) * 1.5
-    headways = headways.astype(int)
-    headways = deque(headways)
-    timer = 0 
-    extra_headways_fro_empty_trains = list(np.repeat(300, 12 ))
-    headways.extendleft(extra_headways_fro_empty_trains)
+    def __init__(self):
+        
+        # headways
+        headways = np.array(Param_Victoria.headways_dic['Brixton-Stockwell']) * 1.5
+        headways = headways.astype(int)
+        self.headways = deque(headways)
+        self.timer = 0 
+        extra_headways_fro_empty_trains = list(np.repeat(300, 12 ))
+        self.headways.extendleft(extra_headways_fro_empty_trains)
     
     # changing these attributes will change the original ones in Param_Victoria as well
     station_travel_times = Param_Victoria.station_travel_times
@@ -122,13 +138,14 @@ class Param_Victoria_NS(Param_Victoria):
     route_nlcs = Param_Victoria.route_nlcs[::-1]
     stations = ([(i) for i in route_nlcs])
 
-    # headways
-    extra_headways_fro_empty_trains = list(np.repeat(300, 12 ))
-    headways = np.array(Param_Victoria.headways_dic['Walthamstow Central-Blackhorse Road'] ) * 1.5
-    headways = headways.astype(int)
-    headways = deque(headways)
-    headways.extendleft(extra_headways_fro_empty_trains)
-    timer = 0 
+    def __init__(self):
+        # headways
+        extra_headways_fro_empty_trains = list(np.repeat(300, 12 ))
+        headways = np.array(Param_Victoria.headways_dic['Walthamstow Central-Blackhorse Road'] ) * 1.5
+        headways = headways.astype(int)
+        self.headways = deque(headways)
+        self.headways.extendleft(extra_headways_fro_empty_trains)
+        self.timer = 0 
 
     consecutive_speeds = {k2:{k : v2} for k, v in Param_Victoria.consecutive_speeds.iteritems() for k2, v2 in v.iteritems()}
 

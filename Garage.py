@@ -43,6 +43,8 @@ class Garage(object):
         dispatched_train.is_in_service = True
         dispatched_train.time_to_next_station = self.Param.station_travel_times[self.garage_name][self.Param.stations[0]]
         dispatched_train.distance_from_garage = 0
+        
+        dispatched_train._dispatch_times.append(t)
             
         # in case a train was previously dispatched, i.e. this is NOT the first time it is running 
         if self.last_dispatched_train :
@@ -61,10 +63,8 @@ class Garage(object):
         
 
         
-#==============================================================================
-#         print 'dispatched train', str(dispatched_train.car_id) , ' at time ', str(t), " from queue ", str(self.garage_name)
-#         print dispatched_train.is_in_service
-#         print str(len(self.queue)) + ' trains in the garage' 
-#==============================================================================
+        print 'dispatched train', str(dispatched_train.car_id) , ' at time ', str(t), " from queue ", str(self.garage_name)
+        print dispatched_train.is_in_service
+        print str(len(self.queue)) + ' trains in the garage' 
     
     
