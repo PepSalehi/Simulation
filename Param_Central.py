@@ -6,6 +6,7 @@ Created on Mon Jul 10 14:59:12 2017
 """
 
 from config import *
+import dill
 class Param_Central(object):
     
     '''store all the parameters inside this class
@@ -38,7 +39,8 @@ class Param_Central(object):
     station_distances = pickle.load(
         open("C:/Users/Peyman.n/Dropbox/Research/projects/Crowding/station_distances.p", "rb"))
 
-
+    consecutive_speeds = dill.load(
+        open("C:/Users/Peyman.n/Documents/TfL data/2012/central_speeds_edcf", "rb"))
 
 
     # assign station positions
@@ -107,9 +109,9 @@ class Param_Central_WE(Param_Central):
     
     station_distances[garage_name][route_nlcs[0]] = 1
     station_travel_times[garage_name][route_nlcs[0]]= 1
-    consecutive_speeds[garage_name][route_nlcs[0]] = 9
+    consecutive_speeds[garage_name][route_nlcs[0]] = [9]
     station_travel_times[route_nlcs[len(route_nlcs) - 1]][last_garage_name]= 1
-    consecutive_speeds[route_nlcs[len(route_nlcs) - 1]][last_garage_name] = 9
+    consecutive_speeds[route_nlcs[len(route_nlcs) - 1]][last_garage_name] = [9]
 
     # create sufficient trains
     max_tt = max(station_travel_times[Param_Central.route_nlcs[0]].values())
@@ -158,9 +160,9 @@ class Param_Central_EW(Param_Central):
 
     station_distances[garage_name][route_nlcs[0]] = 1
     station_travel_times[garage_name][route_nlcs[0]]= 1
-    consecutive_speeds[garage_name][route_nlcs[0]] = 9
+    consecutive_speeds[garage_name][route_nlcs[0]] = [9]
     station_travel_times[route_nlcs[len(route_nlcs) - 1]][last_garage_name]= 1
-    consecutive_speeds[route_nlcs[len(route_nlcs) - 1]][last_garage_name] = 9
+    consecutive_speeds[route_nlcs[len(route_nlcs) - 1]][last_garage_name] = [9]
     
 
     # create sufficient trains

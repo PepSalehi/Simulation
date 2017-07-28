@@ -46,6 +46,8 @@ class Garage(object):
         
         dispatched_train._dispatch_times.append(t)
             
+        # 
+        dispatched_train.current_speed = self.Param.consecutive_speeds[dispatched_train.prev_station_id][dispatched_train.next_station_id][0]
         # in case a train was previously dispatched, i.e. this is NOT the first time it is running 
         if self.last_dispatched_train :
             self.last_dispatched_train.train_in_back = dispatched_train

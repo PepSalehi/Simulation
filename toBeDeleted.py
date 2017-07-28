@@ -27,3 +27,5 @@ DS_god_second_iterations = run_simulation(simulation_time, the_god, csv_file, st
                                           victoria_csv_file, victoria_st_csv_file, update_interval,
                                           prev_god=DS_god, act_dumb = False )
 print "#############################################"
+
+
