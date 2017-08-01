@@ -51,7 +51,7 @@ class Param_Central(object):
 #      open("C:/Users/Peyman.n/Dropbox/Research/projects/Crowding/central_line.p", "rb"))
         open("C:/Users/Peyman.n/Dropbox/Research/projects/Crowding/central_line.p" , "rb"))
 
-    central_station_lookup_by_nlc = pickle.load(
+    station_lookup_by_nlc = pickle.load(
         open("C:/Users/Peyman.n/Dropbox/Research/projects/Crowding/central_station_lookup_by_nlc.p"))
 
 #==============================================================================

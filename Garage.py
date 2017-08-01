@@ -13,6 +13,8 @@ class Garage(object):
         self.last_dispatched_train = None
         for train in trains:
             self.add_to_garage(train)
+        # need it to retrieve the order trains were dispatched
+        self._dispatched_train_ids = []
     def add_to_garage(self, train):
         self.queue.append(train)
         train.next_station_id = self.Param.stations[0]
@@ -62,8 +64,8 @@ class Garage(object):
 #==============================================================================
             
         self.last_dispatched_train = dispatched_train
-        
-
+        #
+        self._dispatched_train_ids.append(dispatched_train.car_id)        
         
         print 'dispatched train', str(dispatched_train.car_id) , ' at time ', str(t), " from queue ", str(self.garage_name)
         print dispatched_train.is_in_service

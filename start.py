@@ -241,52 +241,54 @@ def run_simulation(simulation_time, god_template, csv_file, st_csv_file, victori
 #==============================================================================
 DS_god, param_victoria_NS, param_victoria_SN, param_central_EW, param_central_WE = run_simulation(first_iterations_simulation_time, the_god, csv_file, st_csv_file, victoria_csv_file, victoria_st_csv_file, update_interval )
 
-print "#############################################"
-print "Start the second iteration "
-csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv/trains_states.csv", 'wb') 
-csv_writer = csv.writer(csv_file)  
-csv_writer.writerow(('t', 'car_id', 'position', 'load', 'load_history_array', "next_station_id"))
-
-st_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv\\stations_states.csv", 'wb') 
-st_csv_writer = csv.writer(st_csv_file)  
-st_csv_writer.writerow(('t', 'station_id', 'platform', 'queue', 'hist_queue_array'))
-
-victoria_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv/trains_states_victoria.csv", 'wb') 
-victoria_csv_writer = csv.writer(victoria_csv_file)  
-victoria_csv_writer.writerow(('t', 'car_id', 'position', 'load', 'load_history_array', "next_station_id"))
-
-victoria_st_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv\\stations_states_victoria.csv", 'wb') 
-victoria_st_csv_writer = csv.writer(victoria_st_csv_file)  
-victoria_st_csv_writer.writerow(('t', 'station_id', 'platform', 'queue', 'hist_queue_array'))
-
-DS_god_second_iterations, param_victoria_NS2, param_victoria_SN2, param_central_EW2, param_central_WE2 = run_simulation(second_iterations_simulation_time, 
-                                          the_god, csv_file, st_csv_file,
-                                          victoria_csv_file, victoria_st_csv_file, update_interval,
-                                          prev_god=DS_god, act_dumb = False )
-print "#############################################"
-
-
-print "#############################################"
-print "Start the third iteration "
-csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv/trains_states.csv", 'wb') 
-csv_writer = csv.writer(csv_file)  
-csv_writer.writerow(('t', 'car_id', 'position', 'load', 'load_history_array', "next_station_id"))
-
-st_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv\\stations_states.csv", 'wb') 
-st_csv_writer = csv.writer(st_csv_file)  
-st_csv_writer.writerow(('t', 'station_id', 'platform', 'queue', 'hist_queue_array'))
-
-victoria_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv/trains_states_victoria.csv", 'wb') 
-victoria_csv_writer = csv.writer(victoria_csv_file)  
-victoria_csv_writer.writerow(('t', 'car_id', 'position', 'load', 'load_history_array', "next_station_id"))
-
-victoria_st_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv\\stations_states_victoria.csv", 'wb') 
-victoria_st_csv_writer = csv.writer(victoria_st_csv_file)  
-victoria_st_csv_writer.writerow(('t', 'station_id', 'platform', 'queue', 'hist_queue_array'))
-
-DS_god_third_iterations, param_victoria_NS3, param_victoria_SN3, param_central_EW3, param_central_WE3 = run_simulation(third_iterations_simulation_time, 
-                                          the_god, csv_file, st_csv_file,
-                                          victoria_csv_file, victoria_st_csv_file, update_interval,
-                                          prev_god=DS_god_second_iterations, act_dumb = False )
-print "#############################################"
-
+#==============================================================================
+# print "#############################################"
+# print "Start the second iteration "
+# csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv/trains_states.csv", 'wb') 
+# csv_writer = csv.writer(csv_file)  
+# csv_writer.writerow(('t', 'car_id', 'position', 'load', 'load_history_array', "next_station_id"))
+# 
+# st_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv\\stations_states.csv", 'wb') 
+# st_csv_writer = csv.writer(st_csv_file)  
+# st_csv_writer.writerow(('t', 'station_id', 'platform', 'queue', 'hist_queue_array'))
+# 
+# victoria_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv/trains_states_victoria.csv", 'wb') 
+# victoria_csv_writer = csv.writer(victoria_csv_file)  
+# victoria_csv_writer.writerow(('t', 'car_id', 'position', 'load', 'load_history_array', "next_station_id"))
+# 
+# victoria_st_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv\\stations_states_victoria.csv", 'wb') 
+# victoria_st_csv_writer = csv.writer(victoria_st_csv_file)  
+# victoria_st_csv_writer.writerow(('t', 'station_id', 'platform', 'queue', 'hist_queue_array'))
+# 
+# DS_god_second_iterations, param_victoria_NS2, param_victoria_SN2, param_central_EW2, param_central_WE2 = run_simulation(second_iterations_simulation_time, 
+#                                           the_god, csv_file, st_csv_file,
+#                                           victoria_csv_file, victoria_st_csv_file, update_interval,
+#                                           prev_god=DS_god, act_dumb = False )
+# print "#############################################"
+# 
+# 
+# print "#############################################"
+# print "Start the third iteration "
+# csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv/trains_states.csv", 'wb') 
+# csv_writer = csv.writer(csv_file)  
+# csv_writer.writerow(('t', 'car_id', 'position', 'load', 'load_history_array', "next_station_id"))
+# 
+# st_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv\\stations_states.csv", 'wb') 
+# st_csv_writer = csv.writer(st_csv_file)  
+# st_csv_writer.writerow(('t', 'station_id', 'platform', 'queue', 'hist_queue_array'))
+# 
+# victoria_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv/trains_states_victoria.csv", 'wb') 
+# victoria_csv_writer = csv.writer(victoria_csv_file)  
+# victoria_csv_writer.writerow(('t', 'car_id', 'position', 'load', 'load_history_array', "next_station_id"))
+# 
+# victoria_st_csv_file =  open("C:\\Users\\Peyman.n\\Documents\\Viz_of_simulation-victoriaAndcentral\\static\\csv\\stations_states_victoria.csv", 'wb') 
+# victoria_st_csv_writer = csv.writer(victoria_st_csv_file)  
+# victoria_st_csv_writer.writerow(('t', 'station_id', 'platform', 'queue', 'hist_queue_array'))
+# 
+# DS_god_third_iterations, param_victoria_NS3, param_victoria_SN3, param_central_EW3, param_central_WE3 = run_simulation(third_iterations_simulation_time, 
+#                                           the_god, csv_file, st_csv_file,
+#                                           victoria_csv_file, victoria_st_csv_file, update_interval,
+#                                           prev_god=DS_god_second_iterations, act_dumb = False )
+# print "#############################################"
+# 
+#==============================================================================

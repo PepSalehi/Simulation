@@ -173,7 +173,7 @@ class CentralMonitor(object):
 #         ####    
         
 #         # want to keep track of a train's trajectory
-        self.train_trajectories = defaultdict(list)
+        self.train_trajectories = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
         
     
     def _initiate_train_at_specific_station(self, train, station_id, param):

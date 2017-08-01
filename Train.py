@@ -663,7 +663,7 @@ class Train(object):
 #         station.is_occupied = False
 #==============================================================================
         
-        central_monitor_instance.train_trajectories[self.car_id].append(self.position)
+#        central_monitor_instance.train_trajectories[self.car_id].append(self.distance_from_garage)
         
         for level in self.DEMAND_LEVEL:
             
@@ -756,7 +756,12 @@ class Train(object):
 #==============================================================================
 #         self._saved_positions =          
 #==============================================================================
-        
+    def _record_state_for_plotting(self, t, central_monitor_instance):
+        '''
+        Always record this. Want to use it for plotting positions        
+        '''
+        central_monitor_instance.train_trajectories[self.car_id][self.direction][t] = self.distance_from_garage
+
         
     def save_state(self, t, csv_writer):
         '''
@@ -772,8 +777,13 @@ class Train(object):
             
         
     def update(self, central_monitor_instance, t, god):
+        
+
         # if it has been dispatched (i.e. is not in the garage)
         if self.is_in_service:
+            
+            self._record_state_for_plotting(t, central_monitor_instance)
+            
 #             print "distance_to_next_station: ", self.distance_to_next_station, " at time: ", t
             if self.it_has_reached_a_station:
 #==============================================================================
@@ -837,7 +847,8 @@ class Train(object):
 
 
         else:
-            central_monitor_instance.train_trajectories[self.car_id].append(self.position)
+            pass
+#            central_monitor_instance.train_trajectories[self.car_id].append(self.distance_from_garage)
        
            
         
