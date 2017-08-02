@@ -40,6 +40,7 @@ class Platform(object):
         # {train_id : queue(color)}
         self.train_colors = defaultdict(lambda: deque())
         self.imported_train_colors = None 
+        self._dwell_times = [] # a place to record the dwell times of arriving trains
         
         
     def get_transfer_time(self, line1):

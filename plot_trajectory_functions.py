@@ -18,8 +18,12 @@ import matplotlib
 #==============================================================================
 # Plot function 
 #==============================================================================
-line = 'Victoria'
-direction = 'SN'
+lines = [ "Victoria", "Central"]
+directions = ['NS', 'SN', 'WE', 'EW']
+
+line = lines[1]
+direction = directions[3]
+
 a_monitor = DS_god.monitors[line]
 ns = a_monitor.garages[direction]
 param = None
@@ -70,6 +74,9 @@ for idx, tr in enumerate(ns._dispatched_train_ids):
 #==============================================================================
 
 
+b =  a_monitor.stations[10].platforms['WE']
+b._dwell_times
+plt.hist(b._dwell_times)
 
 
 

@@ -66,7 +66,20 @@ class Passenger(object):
         if self.act_dumb : 
             return True
         else :
-            return True 
+            # if he actually has an option
+            if len(upcoming_trains_info) > 1:
+                # sort by the arrival times                 
+                sorted_x = sorted(upcoming_trains_info.items(), key=lambda item : item[1][0] )
+                # board if the earliest train is green
+                earliest = sorted_x[0]
+                if earliest[1][1]['boarding_prob_color'] == 'green':
+                    return True
+                elif (earliest[1][1]['boarding_prob_color'] != 'green') and sorted_x[1][1][1]['boarding_prob_color'] == 'green':
+                    return False
+                
+                return True
+            else:
+                return True 
     
         
         

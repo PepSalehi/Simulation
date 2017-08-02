@@ -14,6 +14,8 @@ from Param_Victoria import Param_Victoria, Param_Victoria_NS, Param_Victoria_SN
 class Train(object):
     # https://tfl.gov.uk/corporate/about-tfl/what-we-do/london-underground/rolling-stock
     CAPACITY = 892 
+    NUM_SEATS = 324
+    NUM_DOORS = 24
     # https://tfl.gov.uk/corporate/about-tfl/what-we-do/london-underground/facts-and-figures
     SPEED = 9 # meters/sec
     
@@ -163,6 +165,7 @@ class Train(object):
                     
                 while len(self.passengers[level]) < self.CAPACITY and len(station.queue[level]) > 0:
                     pax = station.queue[level].pop()
+               
                     # must add the color for the other upcoming trains as well
                     if pax.should_it_try_to_board(station.upcoming_trains): 
                     
@@ -224,6 +227,7 @@ class Train(object):
         
         
         station.time_since_occupied = 0
+        return(i)
 #        station.is_occupied = False
         
     def should_wait_for_dwell_time(self,t):
@@ -300,7 +304,8 @@ class Train(object):
                     central_monitor_instance.all_passengers_offloaded[level].append(pax)
                     i += 1
                     self.just_offloaded.append(pax)
-
+                    
+            return(i)
 #             print "offloaded ", str(i), "passengers", " ", level
 #             print "after", len(self.passengers[level]), " ", level
         
@@ -353,16 +358,38 @@ class Train(object):
         assert(tt > 0)
         return tt 
     
-    def start_waiting (self):
+    def start_waiting (self, central_monitor_instance, number_of_boarding, number_of_alighting):
         self.waiting = True
+        self.DWELL = self._compute_dwell_time(number_of_boarding, number_of_alighting)
         self.time_started_waiting = 0
+        
+        current_platform = central_monitor_instance.return_station_by_id(self.current_station_id).platforms[self.direction]
+        current_platform._dwell_times.append(self.DWELL)
         
     def keep_waiting (self):
         self.time_started_waiting += 1
         
+    def _compute_dwell_time(self, number_of_boarding, number_of_alighting):
+        F = 1.05
+        T = self.get_load(self.DEMAND_LEVEL[0])
+        D = self.NUM_DOORS
+        S = self.NUM_SEATS      
+        B = number_of_boarding
+        A = number_of_alighting
+        assert A is not None
+        assert B is not None
+        block_1 = 1 + (F/35) * ((T-S)/D)
+        block_3 = 0.027 * (F*B/D) * (F*A/D)
+        block_2 = np.power((F*B/D), 0.7) + np.power((F*A/D), 0.7) + block_3
+        
+        SS = 15 + 1.4 * block_1 * block_2
+        return SS
+                
+        
+        
     def should_it_keep_waiting(self, waiting_time = 90):
         # returns True if t <= waiting time, proxy for inaction for a while
-        if self.time_started_waiting <= waiting_time :
+        if self.time_started_waiting <= self.DWELL :
             assert (self.waiting == True)
             return True
         else:
@@ -559,8 +586,9 @@ class Train(object):
         
         
     def unload_passengers(self, central_monitor_instance, t, god):
-        self.offload_passengers(central_monitor_instance, self.current_station_id, t, god)
-    
+        number_of_alights = self.offload_passengers(central_monitor_instance, self.current_station_id, t, god)
+        return number_of_alights
+        
     def board_passengers(self,central_monitor_instance,  t):
         # remember to first call unload passengers
         # station = platform here 
@@ -578,12 +606,12 @@ class Train(object):
                         
             
             # board pax
-            self.load_passenger(central_monitor_instance, t, current_station)
-
+            number_of_boardings = self.load_passenger(central_monitor_instance, t, current_station)
+            return number_of_boardings
         else:
             # if it is the last station
 #             self.start_over(t=t)
-            pass
+            return 0 
     
     def _add_train_to_platform_upcoming(self, central_monitor_instance, station_id, time_to_station, t= None):
         # add this train to the appropriate platform's upcoming trains 
@@ -797,15 +825,16 @@ class Train(object):
 #                         self.log_file.write("train "+ (self.car_id) + " entered station "+ "at time "+ str(t)+'\n')
 #                        print "enter station, time: ", str(t)
                         self.arrive_at_station(t, central_monitor_instance)
-                        self.unload_passengers(central_monitor_instance, t, god)
-                        self.board_passengers(central_monitor_instance, t)
-                        self.start_waiting()
+                        number_of_alights = self.unload_passengers(central_monitor_instance, t, god)
+                        number_of_boardings = self.board_passengers(central_monitor_instance, t)
+                        self.start_waiting(central_monitor_instance, number_of_boardings, number_of_alights )
                     else:
                         # wait for other train to leave the station
 #                         print "wait for other train to leave the station, time: ", str(t)
 #                         self.log_file.write("train "+ (self.car_id) +  " wait for other train to leave the station, time: "
 #                                        +str(t)+'\n')
-                        self.start_waiting()
+#                        self.start_waiting()
+                        pass
                 # it has been waiting here        
                 else:
                     if self.should_it_keep_waiting():
