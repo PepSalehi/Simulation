@@ -19,12 +19,12 @@ import matplotlib
 # Plot function 
 #==============================================================================
 lines = [ "Victoria", "Central"]
-directions = ['NS', 'SN', 'WE', 'EW']
+directions = {'Central' : ['WE', 'EW'], 'Victoria' :['NS', 'SN']}
 
 line = lines[1]
-direction = directions[3]
+direction = directions[line][0]
 
-a_monitor = DS_god.monitors[line]
+a_monitor = RW_god.monitors[line]
 ns = a_monitor.garages[direction]
 param = None
 for p in a_monitor.params:
@@ -47,8 +47,8 @@ fig, ax = plt.subplots(figsize=(20, 15))
 ax.set_yticks(y_ticks)
 ax.set_yticklabels(y_labels)
 
-x1_secs = [datetime.timedelta(seconds=x) for x in range(0, first_iterations_simulation_time + 900, 900)]
-ax.set_xticks(range(0, first_iterations_simulation_time + 900, 900))
+x1_secs = [datetime.timedelta(seconds=x) for x in range(0, 120*60, 900)]
+ax.set_xticks(range(0, 120*60, 900))
 #xfmt = md.DateFormatter('%H:%M')
 #ax.xaxis.set_major_formatter(xfmt)
 
@@ -74,7 +74,7 @@ for idx, tr in enumerate(ns._dispatched_train_ids):
 #==============================================================================
 
 
-b =  a_monitor.stations[10].platforms['WE']
+b =  a_monitor.stations[15].platforms['EW']
 b._dwell_times
 plt.hist(b._dwell_times)
 

@@ -173,6 +173,7 @@ class CentralMonitor(object):
 #         ####    
         
 #         # want to keep track of a train's trajectory
+        # {train : {direction : {dist_from_origin : destination}}}
         self.train_trajectories = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
         
     

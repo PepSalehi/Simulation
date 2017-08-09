@@ -28,7 +28,7 @@ class Platform(object):
         self.pax_list = defaultdict(list)
         self.demand_rate = defaultdict(float)
         # 
-        self.arriving_trains_loads = defaultdict(list)
+#        self.arriving_trains_loads = defaultdict(list)
         # Queue length at the time of train arrival
         self.hist_queue = defaultdict(list)
         # for visualiztion; we want every station to start with zero passengers

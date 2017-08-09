@@ -77,6 +77,7 @@ class Train(object):
         self.updated_prev_station = None
         self.position = position
         self.distance_to_next_station = distance_to_next_station
+        self.distance_to_the_next_NEXT_station = None
         ##
         self.waiting = False
         self.time_started_waiting = None
@@ -90,7 +91,7 @@ class Train(object):
         self.stations_visited = {}
         self._saved_states = {}
         # for other iterations
-        self._save_detailed_state_for_later = deque()
+        self._save_detailed_state_for_later = None
 #         self.log_file = open((self.car_id)  + ' workfile.txt', 'w') # + str(random.randint(0,100000))
         
     def set_demand_level(self, level):
@@ -630,18 +631,25 @@ class Train(object):
 #                     print "#############################################"
 #==============================================================================
                 except: 
-                    print "sth went wrong reading train info"
-                    print "current station id ", self.current_station_id
-                    print " next station id ", station_id
-                    print "time to station " , time_to_station
-                    print "platform ", next_platform_instance.ids, next_platform_instance.direction
-                    print "car id ", self.car_id
-                    print "next_platform_instance.imported_train_colors keys", next_platform_instance.imported_train_colors.keys()
-                    print "next_platform_instance.imported_train_colors", next_platform_instance.imported_train_colors
-                    print "upcoming next ", next_platform_instance.upcoming_trains      
-                    if t :
-                        print " t is ", t
-                    next_platform_instance.imported_train_colors[self.car_id].popleft()                
+                    # now that I know that this works properly, let's change it so that it assumes green light 
+                    # for the trains not seen yet. It won't ever be used, as trains will not get there in real world
+                    train_info = {'car_id' : self.car_id, 
+                        'boarding_prob_color' : 'green', 
+                        'prob_of_boarding' : 1}
+#==============================================================================
+#                     print "sth went wrong reading train info"
+#                     print "current station id ", self.current_station_id
+#                     print " next station id ", station_id
+#                     print "time to station " , time_to_station
+#                     print "platform ", next_platform_instance.ids, next_platform_instance.direction
+#                     print "car id ", self.car_id
+#                     print "next_platform_instance.imported_train_colors keys", next_platform_instance.imported_train_colors.keys()
+#                     print "next_platform_instance.imported_train_colors", next_platform_instance.imported_train_colors
+#                     print "upcoming next ", next_platform_instance.upcoming_trains      
+#                     if t :
+#                         print " t is ", t
+#                     next_platform_instance.imported_train_colors[self.car_id].popleft()                
+#==============================================================================
                     
                 next_platform_instance.upcoming_trains[self.car_id] = [time_to_station, train_info]
 #==============================================================================
@@ -675,9 +683,17 @@ class Train(object):
 #         print self.current_station_id
 #         print (self.prev_station_id )
 #==============================================================================
-
-        del current_platform_instance.upcoming_trains[self.car_id]
-        
+        try:
+            del current_platform_instance.upcoming_trains[self.car_id]
+        except:
+            print "ERROR"
+            print current_platform_instance.ids
+            print current_platform_instance.imported_train_colors
+            print current_platform_instance.upcoming_trains
+            print self.next_station_id
+            print self.next_NEXT_station_id
+            
+            del current_platform_instance.upcoming_trains[self.car_id]
         
     def depart_station(self, central_monitor_instance, t):
         self.waiting = False
@@ -722,10 +738,10 @@ class Train(object):
                 self.current_speed = speed_dist
                 print "float speed ", speed_dist, self.current_station_id, self.next_station_id
             else:    
-                self.current_speed = speed_dist.rvs(1)[0]
+                self.current_speed = np.mean(speed_dist.rvs(3))
                 while self.current_speed  < 1 :
                     print "low speed"
-                    self.current_speed = speed_dist.rvs(1)[0]
+                    self.current_speed = np.mean(speed_dist.rvs(3))
             #==============================================================================
 
             # add this train to the appropriate platform's upcoming trains 
@@ -770,16 +786,46 @@ class Train(object):
         # append to end of the queue
         info = {'position': self.position,
                 'current_station_id': self.current_station_id,
+                'prev_station_id' : self.prev_station_id,
                 'next_station_id': self.next_station_id,
                 'next_NEXT_station_id' : self.next_NEXT_station_id, 
                 'time_to_next_station' : self.time_to_next_station, 
                 'time_to_next_NEXT_station' : self.time_to_next_NEXT_station, 
                 'waiting' : self.waiting ,
                 'time_started_waiting': self.time_started_waiting,
-                'distance_to_next_station' : self.distance_to_next_station
+                'distance_to_next_station' : self.distance_to_next_station,
+                'distance_to_the_next_NEXT_station': self.distance_to_the_next_NEXT_station,
+                'next_next_platform' : self.next_next_platform,
+                'next_platform' : self.next_platform,
+                'train_in_front' : self.train_in_front,
+                'train_in_back' : self.train_in_back,
+                'distance_to_train_in_back': self.distance_to_train_in_back,
+                'is_in_service': self.is_in_service,
+                'it_has_reached_a_station': self.it_has_reached_a_station
                 }
                 
-        self._save_detailed_state_for_later.append(info)
+        self._save_detailed_state_for_later = info
+        
+    def read_state_from_other_iterations(self, info) : 
+        self.position = info['position']
+        self.current_station_id = info['current_station_id']
+        self.next_station_id = info['next_station_id']
+        self.next_NEXT_station_id = info['next_NEXT_station_id']
+        self.time_to_next_station = info['time_to_next_station']
+        self.time_to_next_NEXT_station = info['time_to_next_NEXT_station']
+        self.waiting = info['waiting']
+        self.time_started_waiting = info['time_started_waiting']
+        self.distance_to_next_station = info['distance_to_next_station']
+        self.next_platform = info['next_platform']
+        self.next_next_platform = info['next_next_platform']
+        self.distance_to_the_next_NEXT_station = info['distance_to_the_next_NEXT_station']
+        self.it_has_reached_a_station = info['it_has_reached_a_station']
+        self.prev_station_id = info['prev_station_id']
+        self.train_in_front = info['train_in_front']
+        self.train_in_back = info['train_in_back']
+        self.distance_to_train_in_back = info['distance_to_train_in_back']
+        self.is_in_service = info['is_in_service']
+        
         
 #==============================================================================
 #         self._saved_positions =          
