@@ -35,16 +35,18 @@ class Station(object):
         for platform in self.platforms.values():
             platform.save_state(t, csv_writer)
         
-    def produce_passsengers(self, central_monitor_instance, t_offset, time_range = 15*60, act_dumb = True):
+    def produce_passsengers(self, central_monitor_instance, t_offset, level, act_dumb, time_range = 15*60  ):
         for platform in self.platforms.values():
-            platform.produce_passsengers(central_monitor_instance, t_offset, act_dumb, time_range = 15*60)
+            platform.produce_passsengers(central_monitor_instance, t_offset= t_offset, act_dumb = act_dumb, 
+                                         level =level, time_range = 15*60)
+            
     def get_platform_id_matching_target_destination(self, dest_id, transfer_station_id):
         for name, platform in self.platforms.iteritems():
             if dest_id in platform.get_stations_after_this(transfer_station_id):
                 return name
             
-    def update(self, t):
+    def update(self, t, level):
         for platform in self.platforms.values():
-            platform.update(t)
+            platform.update(t, level)
 
             

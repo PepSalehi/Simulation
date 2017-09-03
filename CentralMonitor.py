@@ -17,6 +17,8 @@ class CentralMonitor(object):
         
         ''' A repo'''
         self.line = line
+        
+        self.train_lookup_by_id = {}
 
         self.all_passengers_created_predicted = []
         self.all_passengers_created_observed = [] 
@@ -66,10 +68,15 @@ class CentralMonitor(object):
         
         self._trains = {}
         self._trains[self.directions[0]] = self.trains_primary
-        self._trains[self.directions[1]] = self.trains_secondary
+        self._trains[self.directions[1]] = self.trains_secondary        
         
-        # this is problematic
-#         self.trains = deepcopy(self.trains_WE); self.trains.extend(self.trains_EW)
+        # for later use during updates 
+        for train in self.trains_primary:
+            self.train_lookup_by_id[train.car_id] = train
+            
+        for train in self.trains_secondary:
+            self.train_lookup_by_id[train.car_id] = train
+
 
 #         # create stations
         self.stations = [Station(ids, self.line) for ids in self.main_param.stations]

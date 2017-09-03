@@ -118,17 +118,19 @@ class Param_Victoria_SN(Param_Victoria):
 
     # create sufficient trains
     max_tt = max(station_travel_times[Param_Victoria.route_nlcs[0]].values())
-    num_req_trains = int(np.ceil(max_tt / Param_Victoria.HEADWAY)) + 10 # safety measure
+    num_req_trains = int(np.ceil(max_tt / Param_Victoria.HEADWAY)) + 35 # safety measure
     train_ids = [str(alp) + str(random.randint(0,1000))  for alp in xrange(1,num_req_trains+1)]
     terminal_station = stations[len(stations)-1]
     
-    
-    @classmethod
-    def get_stations_after_this(cls,station_id):
-        current_index = cls.stations.index(station_id)
-        return cls.stations[current_index:]
-        
-    
+#==============================================================================
+#     
+#     @classmethod
+#     def get_stations_after_this(cls, station_id):
+#         current_index = cls.stations.index(station_id)
+#         return cls.stations[current_index:]
+#         
+#     
+#==============================================================================
     
 
 class Param_Victoria_NS(Param_Victoria):
@@ -144,7 +146,7 @@ class Param_Victoria_NS(Param_Victoria):
     def __init__(self):
         # headways
         extra_headways_fro_empty_trains = list(np.repeat(300, 12 ))
-        headways = np.array(Param_Victoria.headways_dic['Walthamstow Central-Blackhorse Road'] ) * 1.5
+        headways = np.array(Param_Victoria.headways_dic['Walthamstow Central-Blackhorse Road'] ) * 1.25
         headways = headways.astype(int)
         self.headways = deque(headways)
         self.headways.extendleft(extra_headways_fro_empty_trains)
@@ -171,13 +173,16 @@ class Param_Victoria_NS(Param_Victoria):
 
     # create sufficient trains
     max_tt = max(station_travel_times[route_nlcs[0]].values())
-    num_req_trains = int(np.ceil(max_tt / Param_Victoria.HEADWAY)) + 10 # safety measure
+    num_req_trains = int(np.ceil(max_tt / Param_Victoria.HEADWAY)) + 35 # safety measure
     train_ids = [str(alp) + str(random.randint(0,1000))  for alp in xrange(1,num_req_trains+1)]
     terminal_station = stations[len(stations)-1]
     
     line = pickle.load(
         open("C:/Users/Peyman.n/Dropbox/Research/projects/Crowding/victoria_line_shifted.p" , "rb"))
-    @classmethod
-    def get_stations_after_this(cls,station_id):
-        current_index = cls.stations.index(station_id)
-        return cls.stations[current_index:]
+        
+#==============================================================================
+#     @classmethod
+#     def get_stations_after_this(cls,station_id):
+#         current_index = cls.stations.index(station_id)
+#         return cls.stations[current_index:]
+#==============================================================================

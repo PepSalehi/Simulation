@@ -24,7 +24,9 @@ class Garage(object):
         train.Param = self.Param
         train.next_platform = None
         train.next_next_platform = None
-        print 'train', str(train.car_id), 'joined the queue ', str(self.garage_name)
+#==============================================================================
+#        print 'train', str(train.car_id), 'joined the queue ', str(self.garage_name)
+#==============================================================================
         # 
         train.distance_from_garage = 0
         # make sure the trailing train knows that there is no train in front of it 
@@ -37,19 +39,22 @@ class Garage(object):
         train.it_has_reached_a_station = False 
         # 
         
-    def dispatch_train(self, t):
+    def dispatch_train(self, t, central_monitor_instance):
         dispatched_train = self.queue.popleft()
  
         dispatched_train.next_station_id = self.Param.stations[0]
         dispatched_train.prev_station_id = self.garage_name
         dispatched_train.is_in_service = True
         dispatched_train.time_to_next_station = self.Param.station_travel_times[self.garage_name][self.Param.stations[0]]
-        dispatched_train.distance_from_garage = 0
+#        dispatched_train.distance_from_garage = 0
         
         dispatched_train._dispatch_times.append(t)
-            
+        #
+        dispatched_train.distance_to_next_station = 1
+        dispatched_train._add_train_to_platform_upcoming(central_monitor_instance, dispatched_train.next_station_id, 1, t )
         # 
-        dispatched_train.current_speed = self.Param.consecutive_speeds[dispatched_train.prev_station_id][dispatched_train.next_station_id][0]
+        dispatched_train.current_speed = self.Param.consecutive_speeds[self.garage_name][dispatched_train.next_station_id][0]
+        assert dispatched_train.current_speed > 0 
         # in case a train was previously dispatched, i.e. this is NOT the first time it is running 
         if self.last_dispatched_train :
             self.last_dispatched_train.train_in_back = dispatched_train
@@ -67,8 +72,10 @@ class Garage(object):
         #
         self._dispatched_train_ids.append(dispatched_train.car_id)        
         
-        print 'dispatched train', str(dispatched_train.car_id) , ' at time ', str(t), " from queue ", str(self.garage_name)
-        print dispatched_train.is_in_service
-        print str(len(self.queue)) + ' trains in the garage' 
-    
-    
+#==============================================================================
+#         print 'dispatched train', str(dispatched_train.car_id) , ' at time ', str(t), " from queue ", str(self.garage_name)
+# #        print dispatched_train.is_in_service
+#         print str(len(self.queue)) + ' trains in the garage' 
+#     
+#     
+#==============================================================================

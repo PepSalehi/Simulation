@@ -39,6 +39,7 @@ class Platform(object):
         self.upcoming_trains = defaultdict(list)
         # {train_id : queue(color)}
         self.train_colors = defaultdict(lambda: deque())
+        self.train_counters = defaultdict(int)
         self.imported_train_colors = None 
         self._dwell_times = [] # a place to record the dwell times of arriving trains
         
@@ -65,39 +66,67 @@ class Platform(object):
             for _ in range(1, demand+1):
                 # arrival time is now uniformly distributed during the 15 minutes interval 
                 pax = Passenger(entry_station = self.ids, exit_stations = destinations, entry_time = int(random.uniform(t_offset, t_offset + time_range)), act_dumb = act_dumb)
+                
                 if section == "H":
                     central_monitor_instance.all_passengers_created_historical.append(pax) 
                     self.pax_list["H"].append(pax)
+                    
                 elif section == "O":
                     central_monitor_instance.all_passengers_created_observed.append(pax)
                     self.pax_list["O"].append(pax)
+                    
                 elif section == "P":
                     central_monitor_instance.all_passengers_created_predicted.append(pax) 
                     self.pax_list["P"].append(pax)
                 
-    def produce_passsengers(self, central_monitor_instance, t_offset, act_dumb, time_range = 15*60):
+    def produce_passsengers(self, central_monitor_instance, level, t_offset, act_dumb,  time_range = 15*60):
         # there should be no unproduced passengers from last interval
 #         assert len(self.pax_list) == 0
 #         self.pax_list = defaultdict(list)
 
+        assert level in ["P", "O", "H"]
+        self._populate_demand(central_monitor_instance= central_monitor_instance, demand_dict= central_monitor_instance.station_demands_observed, t_offset = t_offset, section = level , act_dumb=act_dumb)
         
-        self._populate_demand(central_monitor_instance, central_monitor_instance.station_demands_observed, t_offset, "O" , act_dumb)
-        self._populate_demand(central_monitor_instance, central_monitor_instance.station_demands_historical, t_offset, "H", act_dumb )
-        self._populate_demand(central_monitor_instance, central_monitor_instance.station_demands_predicted, t_offset, "P", act_dumb )
+#==============================================================================
+#         self._populate_demand(central_monitor_instance, central_monitor_instance.station_demands_historical, t_offset, "H", act_dumb )
+#         self._populate_demand(central_monitor_instance, central_monitor_instance.station_demands_predicted, t_offset, "P", act_dumb )
 
-        self.demand_rate["O"] = len(self.pax_list["O"]) / time_range
-        self.demand_rate["H"] = len(self.pax_list["H"]) / time_range
-        self.demand_rate["P"] = len(self.pax_list["P"]) / time_range
+#         self.demand_rate["O"] = len(self.pax_list["O"]) / time_range
+#         self.demand_rate["H"] = len(self.pax_list["H"]) / time_range
+#         self.demand_rate["P"] = len(self.pax_list["P"]) / time_range
+#==============================================================================
         
         
-    def _return_matched_pax(self, ts):
+    def _return_matched_pax(self, ts, level):
         
-        matched_observed = [pax for pax in self.pax_list["O"] if pax.entry_time in ts ]
-        matched_historical = [pax for pax in self.pax_list["H"] if pax.entry_time in ts ]
-        matched_predicted = [pax for pax in self.pax_list["P"] if pax.entry_time in ts ]
+        matched_ = []
         
-        results = {"O": matched_observed, "H":matched_historical, "P":matched_predicted}
-        return results
+        
+        for idx, pax in enumerate(self.pax_list[level]):
+            if pax.entry_time in ts:
+                matched_.append(self.pax_list[level].pop(idx))
+        
+        results = {level : matched_}
+        return results        
+#==============================================================================
+#         for idx, pax in enumerate(self.pax_list["H"]):
+#             if pax.entry_time in ts:
+#                 matched_historical.append(self.pax_list["H"].pop(idx))
+#                 
+#         for idx, pax in enumerate(self.pax_list["P"]):
+#             if pax.entry_time in ts:
+#                 matched_predicted.append(self.pax_list["P"].pop(idx))
+#             
+#==============================================================================
+        
+            
+#==============================================================================
+#         matched_historical = [pax for pax in self.pax_list["H"] if pax.entry_time in ts ]
+#         matched_predicted = [pax for pax in self.pax_list["P"] if pax.entry_time in ts ]
+#==============================================================================
+        
+#        results = {"O": matched_observed, "H":matched_historical, "P":matched_predicted}
+        
         
     def _append_to_queue(self, k, matched):
         
@@ -106,17 +135,19 @@ class Platform(object):
                 self.queue[k].append(pax)
                 
                 # for bookkeeping
-                if k == "O":
-                    self.observed_queue.append(pax)
-                elif k == "H":
-                    self.historical_queue.append(pax)
-                elif k =="P":
-                    self.predicted_queue.append(pax)
+#==============================================================================
+#                 if k == "O":
+#                     self.observed_queue.append(pax)
+#                 elif k == "H":
+#                     self.historical_queue.append(pax)
+#                 elif k =="P":
+#                     self.predicted_queue.append(pax)
+#==============================================================================
     
     
-    def produce_passengers_per_t(self, t):
+    def produce_passengers_per_t(self, t, level):
         
-        all_matched_dict = self._return_matched_pax([t])
+        all_matched_dict = self._return_matched_pax([t], level)
         
         for k, matches in all_matched_dict.iteritems():
             self._append_to_queue(k, matches)
@@ -124,6 +155,7 @@ class Platform(object):
                 
     def get_waiting_passengers(self, k):
         return self.queue[k]
+        
     def reset_time_since_boarding(self):
         self.time_since_occupied = 0
         
@@ -146,9 +178,9 @@ class Platform(object):
 #        for train_id, time_to_reach  in self.upcoming_trains.iteritems():
             
         pass 
-    def update(self, t):
+    def update(self, t, level):
         # update Station for every epoch
-        self.produce_passengers_per_t(t)
+        self.produce_passengers_per_t(t, level)
         # check if a train is there at the station
         if not self.is_occupied:
             self.time_since_occupied += 1

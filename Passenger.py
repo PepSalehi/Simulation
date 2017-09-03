@@ -62,20 +62,33 @@ class Passenger(object):
         self.boarding_time = None
         self.exit_time = None
     
-    def should_it_try_to_board(self, upcoming_trains_info):
+    def should_it_try_to_board(self, upcoming_trains_info, the_one_arrived_at_now_info):
         if self.act_dumb : 
             return True
         else :
+            if the_one_arrived_at_now_info['boarding_prob_color']== 'green':
+                return True
             # if he actually has an option
-            if len(upcoming_trains_info) > 1:
+        
+            if len(upcoming_trains_info) >= 1:
                 # sort by the arrival times                 
                 sorted_x = sorted(upcoming_trains_info.items(), key=lambda item : item[1][0] )
                 # board if the earliest train is green
                 earliest = sorted_x[0]
-                if earliest[1][1]['boarding_prob_color'] == 'green':
-                    return True
-                elif (earliest[1][1]['boarding_prob_color'] != 'green') and sorted_x[1][1][1]['boarding_prob_color'] == 'green':
-                    return False
+                
+#                print "sorted_x", sorted_x
+#                print "earlies", earliest
+#                earlies ('8332', [1, {'car_id': '8332', 'boarding_prob_color': 'green', 'prob_of_boarding': 1}])
+                
+#                if the_one_arrived_at_now_info['boarding_prob_color'] != 'green': 
+#                    print "TRAIN NOT GREEN "
+#                    print earliest[1][1]
+                    
+                
+                if (the_one_arrived_at_now_info['boarding_prob_color'] != 'green'): # and earliest[1][1]['boarding_prob_color'] == 'green':
+                    # draw a random number, and board if p > threshold(.2)
+                    if  np.random.random_sample() > 0.2:
+                        return False
                 
                 return True
             else:
