@@ -97,6 +97,8 @@ class Train(object):
         # for debug purposes, remove 
         self._dist_to_front = []
         self._dist_to_back = []
+        self._next_stations_debugging = []
+        self._speeds_debugging = []
 #         self.log_file = open((self.car_id)  + ' workfile.txt', 'w') # + str(random.randint(0,100000))
         
     def set_demand_level(self, level):
@@ -777,9 +779,12 @@ class Train(object):
             self.start_over(central_monitor_instance,  garage=      central_monitor_instance.return_garage_of_opposite_direction(self.direction), t=t)  
             
         else:
-    
+            
+            
             # get the next station id
             self.next_station_id = self.get_next_station_id()
+            
+            self._next_stations_debugging.append(self.next_station_id )
             # get the next next station id 
             self.next_NEXT_station_id = self.get_next_NEXT_station_id()
             # get distance to next station
@@ -804,6 +809,8 @@ class Train(object):
                 while self.current_speed  < 4 :
                     print "low speed"
                     self.current_speed = np.mean(speed_dist.rvs(3))
+                    
+            self._speeds_debugging.append(self.current_speed)
             #==============================================================================
 
             # add this train to the appropriate platform's upcoming trains 
@@ -869,7 +876,8 @@ class Train(object):
                 "distance_from_garage" : self.distance_from_garage,
                 "DWELL": self.DWELL,
                 "dwell": self.dwell,
-                "dwell_time_spent": self.dwell_time_spent
+                "dwell_time_spent": self.dwell_time_spent,
+                "line" : self.line
                 
                 
                 }
@@ -895,13 +903,14 @@ class Train(object):
 #        self.train_in_back = info['train_in_back']
         self.distance_to_train_in_back = info['distance_to_train_in_back']
         self.is_in_service = info['is_in_service']
-#        self.Param = info["Param"]
+        self.Param = info["Param"]
         self.direction = info["direction"]
         self.current_speed = info["current_speed"]
         self.distance_from_garage = info["distance_from_garage"]
         self.DWELL = info["DWELL"]
         self.dwell = info["dwell"]
         self.dwell_time_spent = info["dwell_time_spent"]
+        self.line = info["line"]
                
         if info['train_in_back'] is None : 
             self.train_in_back = None

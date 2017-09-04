@@ -95,7 +95,7 @@ class Param_Victoria_SN(Param_Victoria):
     def __init__(self):
         
         # headways
-        headways = np.array(Param_Victoria.headways_dic['Brixton-Stockwell']) * 1.5
+        headways = np.array(Param_Victoria.headways_dic['Brixton-Stockwell']) 
         headways = headways.astype(int)
         self.headways = deque(headways)
         self.timer = 0 
@@ -146,7 +146,7 @@ class Param_Victoria_NS(Param_Victoria):
     def __init__(self):
         # headways
         extra_headways_fro_empty_trains = list(np.repeat(300, 12 ))
-        headways = np.array(Param_Victoria.headways_dic['Walthamstow Central-Blackhorse Road'] ) * 1.25
+        headways = np.array(Param_Victoria.headways_dic['Walthamstow Central-Blackhorse Road'] ) 
         headways = headways.astype(int)
         self.headways = deque(headways)
         self.headways.extendleft(extra_headways_fro_empty_trains)

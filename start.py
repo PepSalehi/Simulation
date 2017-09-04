@@ -44,36 +44,18 @@ def run_simulation(t_start, t_end, god_template, update_interval, prev_god = Non
     # since we need to keep the original god intact, as the other simulation should use the same one for initialization
     god = deepcopy(god_template)
     
-#    s_ = time.time()
     # set demand level i.e. historical, predicted, observed
     for name in god.monitors.keys():
         for n2, train_list in god.monitors[name]._trains.iteritems(): 
             for train in train_list :
                 train.set_demand_level(DEMAND_LEVEL)
-    for name in god.monitors.keys():
-        for n2, train_list in god.monitors[name]._trains.iteritems(): 
-            for train in train_list :
-                assert train.DEMAND_LEVEL == [DEMAND_LEVEL]
-#    print "2nd chunck ", time.time() - s_           
+
     
     #
     def read_train_colors_from_god(this_god, some_god):
-        
         for name in some_god.monitors.keys():
-            
-#==============================================================================
-#             for n, train_list in this_god.monitors[name]._trains.iteritems():    
-#                 this_god_trains = [train.car_id for train in train_list ]
-#                 tr_list = some_god.monitors[name]._trains[n] 
-#                 prev_god_trains = [train.car_id for train in tr_list ]
-#                 
-#             assert (this_god_trains == prev_god_trains )
-#             print "trains are the same " 
-#==============================================================================
-            
             this_run_stations = this_god.monitors[name].stations
             prev_run_stations = some_god.monitors[name].stations
-            
             for this_station, prev_station in zip(this_run_stations, prev_run_stations ): 
                 for plat_name, this_plat in this_station.platforms.iteritems():
                     prev_plat = prev_station.platforms[plat_name]
@@ -81,22 +63,24 @@ def run_simulation(t_start, t_end, god_template, update_interval, prev_god = Non
                     assert (prev_plat.direction == this_plat.direction)
                     # import train colors 
                     this_plat.imported_train_colors = prev_plat.train_colors
-#                    print this_plat.imported_train_colors
-    #
+   #
     if prev_god:
      
         # read train colors 
         read_train_colors_from_god(god, prev_god)
 
-    for t in range(int(t_start), int(t_end)):
-        # produce passengers every 15 minutes. Needed to update demand as new obs. come in every 15 minutes
-        if t >= (60 * 60) and t % (15*60) == 0: # give an hour warm up
-            [station.produce_passsengers(central_monitor_instance = god.monitors["Central"], level = DEMAND_LEVEL, act_dumb = act_dumb, t_offset = t ) 
-                                 for station in god.monitors["Central"].stations[0:len(god.monitors["Central"].stations)-1]]
-                                     
-            [station.produce_passsengers(central_monitor_instance = god.monitors["Victoria"], level = DEMAND_LEVEL, act_dumb = act_dumb, t_offset = t ) 
-                                 for station in god.monitors["Victoria"].stations[0:len(god.monitors["Victoria"].stations)-1]]
+    for t in range(int(t_start), int(t_end)+1):
         
+#==============================================================================
+#         # produce passengers every 15 minutes. Needed to update demand as new obs. come in every 15 minutes
+#         if t >= (60 * 60) and t % (15*60) == 0: # give an hour warm up
+#             [station.produce_passsengers(central_monitor_instance = god.monitors["Central"], level = DEMAND_LEVEL, act_dumb = act_dumb, t_offset = t ) 
+#                                  for station in god.monitors["Central"].stations[0:len(god.monitors["Central"].stations)-1]]
+#                                      
+#             [station.produce_passsengers(central_monitor_instance = god.monitors["Victoria"], level = DEMAND_LEVEL, act_dumb = act_dumb, t_offset = t ) 
+#                                  for station in god.monitors["Victoria"].stations[0:len(god.monitors["Victoria"].stations)-1]]
+#         
+#==============================================================================
         # dispatch trains from garage every HEADWAY minutes
         for param in [param_victoria_ns, param_victoria_sn]:
             if param.should_dispatch():
@@ -326,7 +310,21 @@ def update_god_of_15 (go15, rw, history):
                 
 #                for car_id, info in plt_gop15.upcoming_trains.iteritems():
 #                    if info[1][1]
-                
+        # update garages 
+                # update garages 
+#==============================================================================
+#         if line_ == 'Central': directions = ['EW', 'WE']
+#         if line_ == 'Victoria': directions = ['NS', 'SN']
+#         for direction in directions:
+#             assert go15.monitors[line_].garages[direction].garage_name == rw.monitors[line_].garages[direction].garage_name
+# #        go15.monitors[line_].garages = deepcopy(rw.monitors[line_].garages)
+# #        for direction in directions :
+# #            print go15.monitors[line_].garages[direction].garage_name
+#             go15.monitors[line_].garages[direction]._dispatched_train_ids = deepcopy(rw.monitors[line_].garages[direction]._dispatched_train_ids)
+#     #            go15.monitors[line_].garages[direction].Param = rw.monitors[line_].garages[direction].Param
+#             go15.monitors[line_].garages[direction].last_dispatched_train = deepcopy(rw.monitors[line_].garages[direction].last_dispatched_train)
+#==============================================================================
+        
     
     return temp  
     

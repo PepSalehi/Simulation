@@ -34,7 +34,13 @@ for line in lines :
                 break
         if not param:
             print "STOP THIS MADNESS!"
-            
+            print "##############################################"
+            print "##############################################"
+            print "##############################################"
+            print "##############################################"
+            print "##############################################"
+            print "##############################################"
+            break
         start_station = param.stations[0]
         distances = param.station_distances[start_station]
         y_ticks = [distances[p] for p in param.stations[1:]]
