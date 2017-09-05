@@ -5,26 +5,13 @@ Created on Tue Aug 01 14:27:30 2017
 @author: Peyman
 """
 
-
-
-
-from collections import OrderedDict
-import datetime
-import matplotlib.dates as md
-import matplotlib  
-import seaborn as sns
 #==============================================================================
 # Plot function 
 #==============================================================================
 lines = [ "Victoria", "Central"]
 directions = {'Central' : ['WE', 'EW'], 'Victoria' :['NS', 'SN']}
-
-line = lines[0]
-direction = directions[line][0]
-
 for line in lines :
     for direction in directions[line]:
-        
         a_monitor = god_of_15.monitors[line]
         ns = a_monitor.garages[direction]
         param = None
@@ -66,10 +53,14 @@ for line in lines :
                 plt.plot(x1, y1, c = 'r', linewidth=3)
             
             
-    
-    
-    
-    
+#==============================================================================
+#     
+# line = lines[0]
+# direction = directions[line][0]
+# 
+#     
+#==============================================================================
+
 
 fig, ax = plt.subplots(figsize=(20, 10))
 plt.hist(history )

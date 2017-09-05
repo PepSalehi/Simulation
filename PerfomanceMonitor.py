@@ -30,7 +30,7 @@ len(ds_mon_cent.garages['WE'].queue)
 #==============================================================================
 #tr_ew = ds_mon_cent._trains['EW']
 tr_ew = rw_mon_cent._trains['EW']
-tr = tr_ew[8]
+tr = tr_ew[10]
 plt.figure(figsize=(10,10))
 #path = np.array(tr._load_history['H'])
 path_O = np.array(tr._load_history['O'])
@@ -66,7 +66,7 @@ a = Param_Victoria_NS()
 sum((np.cumsum(a.headways) < 17200))
 
 a = Param_Victoria_SN()
-sum((np.cumsum(a.headways) < 17200))
+sum((np.cumsum(a.headways) < 16200))
 
 
 len(ds_mon_cent._trains["EW"])
@@ -86,13 +86,13 @@ len(a_rw._dispatched_train_ids)
 b_id = a._dispatched_train_ids[107]
 
 
-bnext_id = a._dispatched_train_ids[116]  # 3, 6, etc. 116
+bnext_id = a._dispatched_train_ids[121]  # 3, 6, etc. 116
 
-for tr in ds_mon_vict._trains["SN"]:
+for tr in ds_mon_vict._trains["NS"]:
     if tr.car_id == bnext_id:
         print "found"
         break
-for tr_rw in rw_mon_vict._trains["SN"]:
+for tr_rw in rw_mon_vict._trains["NS"]:
     if tr_rw.car_id == bnext_id:
         print "found"
         break    
@@ -107,6 +107,7 @@ tr._next_stations_debugging
 
 Param_Victoria_SN.stations[1:]
 
+Param_Victoria_SN.stations
 
 
 

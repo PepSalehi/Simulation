@@ -33,6 +33,8 @@ class Train(object):
         
         self.direction = direction
         self.line = line
+        self._number_dispached = None
+        self._number_of_times_added_to_garage = 0
 #        self.is_in_garage = True
         
         if self.line == "Central":
@@ -427,7 +429,7 @@ class Train(object):
         self.empty_load(central_monitor_instance, t)
         # go to the last garage
         self.position = self.Param.station_positions[self.Param.last_garage_name] # CHANGE
-        garage.add_to_garage(self)
+        garage.add_to_garage(self, t=t )
         # it should wait for a while before coming back into the system
         # another approach could be to kill this and replace it with a new one at the origin,
         # this delegates matters into the setup process
@@ -879,7 +881,9 @@ class Train(object):
                 "dwell": self.dwell,
                 "dwell_time_spent": self.dwell_time_spent,
                 "line" : self.line,
-                "is_in_garage" : self.is_in_garage
+                "is_in_garage" : self.is_in_garage,
+                "_number_dispached" : self._number_dispached
+                
                 
                 
                 }
@@ -912,6 +916,7 @@ class Train(object):
         self.dwell_time_spent = info["dwell_time_spent"]
         self.line = info["line"]
         self.is_in_garage = info["is_in_garage"]
+        self._number_dispached = info["_number_dispached"]
                
         if info['train_in_back'] is None : 
             self.train_in_back = None
@@ -927,7 +932,13 @@ class Train(object):
             tr = central_monitor_instance.train_lookup_by_id[ info['train_in_front'].car_id]
             assert tr is not None 
             self.train_in_front = tr    
-        # if is_in_garage == True, and it's not in the garage 
+            
+        if self.is_in_garage == True:
+             # , and it's not in the garage 
+            if self not in central_monitor_instance.garages[self.direction].queue :
+                 central_monitor_instance.garages[self.direction].queue.append(self)
+                 
+             
             
             
 #==============================================================================
