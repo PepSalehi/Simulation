@@ -15,11 +15,16 @@ class Garage(object):
             self.add_to_garage(train)
         # need it to retrieve the order trains were dispatched
         self._dispatched_train_ids = []
-    def add_to_garage(self, train):
-        self.queue.append(train)
+    def add_to_garage(self, train, to_left=False):
+        if to_left:
+            self.queue.appendleft(train)
+        else:
+            self.queue.append(train)
         train.next_station_id = self.Param.stations[0]
         train.prev_station_id = None
         train.is_in_service = False
+        train.is_in_garage = True
+        train.last_garage_name = self.garage_name
         train.direction = self.Param.direction
         train.Param = self.Param
         train.next_platform = None
@@ -37,11 +42,12 @@ class Garage(object):
         train.train_in_front = None
         train.distance_to_train_in_back = None
         train.it_has_reached_a_station = False 
+        
         # 
         
     def dispatch_train(self, t, central_monitor_instance):
         dispatched_train = self.queue.popleft()
- 
+        dispatched_train.is_in_garage = False
         dispatched_train.next_station_id = self.Param.stations[0]
         dispatched_train.prev_station_id = self.garage_name
         dispatched_train.is_in_service = True

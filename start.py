@@ -284,13 +284,35 @@ def update_god_of_15 (go15, rw, history):
               
                 flag= False
                 if tr1.is_in_service:
+                    assert tr1.is_in_garage is False 
                     e1 = tr1.distance_from_garage
                     flag = True
 #                    print "distance to front train, before ", tr1._get_distance_to_front_train()
                     
                 tr1.read_state_from_other_iterations(tr2._save_detailed_state_for_later, go15.monitors[line_])
-                if tr1.is_in_service:            
+#==============================================================================
+#                 if tr1.is_in_garage :
+#                     
+#                     tr_g_name = tr1.last_garage_name  
+#                     if tr_g_name == "garageW": 
+#                         tr_g_name = "WE"
+#                     elif tr_g_name == "garageE": 
+#                         tr_g_name = "EW" 
+#                     elif tr_g_name == "garageN": 
+#                         tr_g_name = "NS" 
+#                     elif tr_g_name == "garageS": 
+#                         tr_g_name = "SN" 
+#                     
+#                     g_instance = go15.monitors[line_].garages[tr_g_name]
+#                     if tr1.car_id not in g_instance.queue:
+#                         print "train was not in queue " 
+#                         print tr1.car_id
+#                         print tr_g_name
+#                         g_instance.add_to_garage(tr1, to_left = True)
+#==============================================================================
                     
+                if tr1.is_in_service:            
+                    assert tr1.is_in_garage is False 
                     tr1.update_next_platform_info(go15.monitors[line_])
                     if flag:
                         e2 = tr1.distance_from_garage
@@ -311,19 +333,30 @@ def update_god_of_15 (go15, rw, history):
 #                for car_id, info in plt_gop15.upcoming_trains.iteritems():
 #                    if info[1][1]
         # update garages 
-                # update garages 
-#==============================================================================
-#         if line_ == 'Central': directions = ['EW', 'WE']
-#         if line_ == 'Victoria': directions = ['NS', 'SN']
-#         for direction in directions:
-#             assert go15.monitors[line_].garages[direction].garage_name == rw.monitors[line_].garages[direction].garage_name
-# #        go15.monitors[line_].garages = deepcopy(rw.monitors[line_].garages)
-# #        for direction in directions :
-# #            print go15.monitors[line_].garages[direction].garage_name
-#             go15.monitors[line_].garages[direction]._dispatched_train_ids = deepcopy(rw.monitors[line_].garages[direction]._dispatched_train_ids)
-#     #            go15.monitors[line_].garages[direction].Param = rw.monitors[line_].garages[direction].Param
-#             go15.monitors[line_].garages[direction].last_dispatched_train = deepcopy(rw.monitors[line_].garages[direction].last_dispatched_train)
-#==============================================================================
+                
+        if line_ == 'Central': directions = ['EW', 'WE']
+        if line_ == 'Victoria': directions = ['NS', 'SN']
+        for direction in directions:
+            assert go15.monitors[line_].garages[direction].garage_name == rw.monitors[line_].garages[direction].garage_name
+#        go15.monitors[line_].garages = deepcopy(rw.monitors[line_].garages)
+#        for direction in directions :
+#            print go15.monitors[line_].garages[direction].garage_name
+#            go15.monitors[line_].garages[direction]._dispatched_train_ids = deepcopy(rw.monitors[line_].garages[direction]._dispatched_train_ids)
+            go15.monitors[line_].garages[direction].Param = rw.monitors[line_].garages[direction].Param
+            
+            tr_ds_ids = [tr_ds.car_id for tr_ds in go15.monitors[line_].garages[direction].queue]
+            tr_rw_ids = [tr_rw.car_id for tr_rw in rw.monitors[line_].garages[direction].queue]
+            if tr_ds_ids != tr_rw_ids:
+                print "different queues "
+                # if queues have different trains in them 
+                # assume only the first one is different for now 
+                if tr_rw_ids[0] not in tr_ds_ids:
+                    print "train was not in queue " 
+                    print tr1.car_id
+                    tr = go15.monitors[line_].train_lookup_by_id[tr_rw_ids[0]]
+                    go15.monitors[line_].garages[direction].add_to_garage(tr, to_left = True)
+                    
+#            go15.monitors[line_].garages[direction].last_dispatched_train = deepcopy(rw.monitors[line_].garages[direction].last_dispatched_train)
         
     
     return temp  

@@ -11,7 +11,7 @@ import gc
 
 #def run(simulation_time =  2 * 3600):
 
-simulation_time = int(18000)
+simulation_time = int(6*3600)  # 18000
 update_interval = 15 * 60 # 15 minutes 
 
 the_god = God()

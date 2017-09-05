@@ -40,7 +40,7 @@ class Param_Victoria(object):
         open("C:/Users/Peyman.n/Dropbox/Research/projects/Crowding/victoria_station_distances.p", "rb"))
         
     consecutive_speeds = dill.load(
-        open("C:/Users/Peyman.n/Documents/TfL data/2012/victoria_speeds_edcf", "rb"))
+        open("C:/Users/Peyman.n/Documents/TfL data/2012/victoria_speeds_edcf2", "rb"))
 
 
 
@@ -70,18 +70,20 @@ class Param_Victoria(object):
 #             cls.timer -= 1 
 #             return(False)
 #==============================================================================
-    def should_dispatch(self):
-        '''
-        it should be called, by its children, on e every time step to see a train must be dispatched 
-        '''
-        # time to change
-        if self.timer == 0 :
-            hd = self.headways.popleft()
-            self.timer = hd
-            return(True)
-        else:
-            self.timer -= 1 
-            return(False)    
+#==============================================================================
+#     def should_dispatch(self):
+#         '''
+#         it should be called, by its children, on e every time step to see a train must be dispatched 
+#         '''
+#         # time to change
+#         if self.timer == 0 :
+#             hd = self.headways.popleft()
+#             self.timer = hd
+#             return(True)
+#         else:
+#             self.timer -= 1 
+#             return(False)    
+#==============================================================================
 
 class Param_Victoria_SN(Param_Victoria):
     suffix = " SN"
@@ -121,16 +123,19 @@ class Param_Victoria_SN(Param_Victoria):
     num_req_trains = int(np.ceil(max_tt / Param_Victoria.HEADWAY)) + 35 # safety measure
     train_ids = [str(alp) + str(random.randint(0,1000))  for alp in xrange(1,num_req_trains+1)]
     terminal_station = stations[len(stations)-1]
-    
-#==============================================================================
-#     
-#     @classmethod
-#     def get_stations_after_this(cls, station_id):
-#         current_index = cls.stations.index(station_id)
-#         return cls.stations[current_index:]
-#         
-#     
-#==============================================================================
+    def should_dispatch(self):
+        '''
+        it should be called, by its children, on e every time step to see a train must be dispatched 
+        '''
+        # time to change
+        if self.timer == 0 :
+            hd = self.headways.popleft()
+            self.timer = hd
+            return(True)
+        else:
+            self.timer -= 1 
+            return(False)   
+
     
 
 class Param_Victoria_NS(Param_Victoria):
@@ -174,15 +179,21 @@ class Param_Victoria_NS(Param_Victoria):
     # create sufficient trains
     max_tt = max(station_travel_times[route_nlcs[0]].values())
     num_req_trains = int(np.ceil(max_tt / Param_Victoria.HEADWAY)) + 35 # safety measure
-    train_ids = [str(alp) + str(random.randint(0,1000))  for alp in xrange(1,num_req_trains+1)]
+    train_ids = [str(alp) + str(random.randint(0,10000))  for alp in xrange(1,num_req_trains+1)]
     terminal_station = stations[len(stations)-1]
     
     line = pickle.load(
         open("C:/Users/Peyman.n/Dropbox/Research/projects/Crowding/victoria_line_shifted.p" , "rb"))
         
-#==============================================================================
-#     @classmethod
-#     def get_stations_after_this(cls,station_id):
-#         current_index = cls.stations.index(station_id)
-#         return cls.stations[current_index:]
-#==============================================================================
+    def should_dispatch(self):
+        '''
+        it should be called, by its children, on e every time step to see a train must be dispatched 
+        '''
+        # time to change
+        if self.timer == 0 :
+            hd = self.headways.popleft()
+            self.timer = hd
+            return(True)
+        else:
+            self.timer -= 1 
+            return(False)   

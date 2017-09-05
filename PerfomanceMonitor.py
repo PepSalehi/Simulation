@@ -63,26 +63,36 @@ len(ds_mon_vict.all_passengers_created_observed) / len(rw_mon_vict.all_passenger
 
 
 a = Param_Victoria_NS()
-sum((np.cumsum(a.headways) < 16200))
+sum((np.cumsum(a.headways) < 17200))
 
 a = Param_Victoria_SN()
-sum((np.cumsum(a.headways) < 21600))
+sum((np.cumsum(a.headways) < 17200))
+
+
+len(ds_mon_cent._trains["EW"])
 
 len(ds_mon_vict._trains["NS"])
 # since there are less trains in the garages of 1 direction, it must have been coming from the other depot
 
-a = ds_mon_vict.garages['NS']
+
+a = ds_mon_vict.garages['SN']
+a_rw = rw_mon_vict.garages['SN']
+len(a._dispatched_train_ids)
+len(a_rw._dispatched_train_ids)
+
+
+
 
 b_id = a._dispatched_train_ids[107]
 
 
-bnext_id = a._dispatched_train_ids[3]  # 3, 6, etc.
+bnext_id = a._dispatched_train_ids[116]  # 3, 6, etc. 116
 
-for tr in ds_mon_vict._trains["NS"]:
+for tr in ds_mon_vict._trains["SN"]:
     if tr.car_id == bnext_id:
         print "found"
         break
-for tr_rw in rw_mon_vict._trains["NS"]:
+for tr_rw in rw_mon_vict._trains["SN"]:
     if tr_rw.car_id == bnext_id:
         print "found"
         break    
@@ -91,7 +101,9 @@ tr_rw._dispatch_times
 tr._dispatch_times
 
     
+tr_rw._next_stations_debugging
 tr._next_stations_debugging
+
 
 Param_Victoria_SN.stations[1:]
 
@@ -103,9 +115,9 @@ Param_Victoria_SN.stations[1:]
 tr._speeds_debugging
 
 
-a = god_of_15.monitors['Victoria']
+[tr.car_id for tr in rw_mon_vict.garages['NS'].queue]
 
-
+[tr.car_id for tr in ds_mon_vict.garages['NS'].queue]
 
 
 

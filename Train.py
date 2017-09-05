@@ -33,6 +33,7 @@ class Train(object):
         
         self.direction = direction
         self.line = line
+#        self.is_in_garage = True
         
         if self.line == "Central":
             if self.direction == "EW":
@@ -877,7 +878,8 @@ class Train(object):
                 "DWELL": self.DWELL,
                 "dwell": self.dwell,
                 "dwell_time_spent": self.dwell_time_spent,
-                "line" : self.line
+                "line" : self.line,
+                "is_in_garage" : self.is_in_garage
                 
                 
                 }
@@ -899,8 +901,6 @@ class Train(object):
         self.distance_to_the_next_NEXT_station = info['distance_to_the_next_NEXT_station']
         self.it_has_reached_a_station = info['it_has_reached_a_station']
         self.prev_station_id = info['prev_station_id']
-#        self.train_in_front = info['train_in_front']
-#        self.train_in_back = info['train_in_back']
         self.distance_to_train_in_back = info['distance_to_train_in_back']
         self.is_in_service = info['is_in_service']
         self.Param = info["Param"]
@@ -911,6 +911,7 @@ class Train(object):
         self.dwell = info["dwell"]
         self.dwell_time_spent = info["dwell_time_spent"]
         self.line = info["line"]
+        self.is_in_garage = info["is_in_garage"]
                
         if info['train_in_back'] is None : 
             self.train_in_back = None
@@ -926,6 +927,9 @@ class Train(object):
             tr = central_monitor_instance.train_lookup_by_id[ info['train_in_front'].car_id]
             assert tr is not None 
             self.train_in_front = tr    
+        # if is_in_garage == True, and it's not in the garage 
+            
+            
 #==============================================================================
 #         self._saved_positions =          
 #==============================================================================

@@ -25,7 +25,7 @@ direction = directions[line][0]
 for line in lines :
     for direction in directions[line]:
         
-        a_monitor = RW_god.monitors[line]
+        a_monitor = god_of_15.monitors[line]
         ns = a_monitor.garages[direction]
         param = None
         for p in a_monitor.params:
@@ -63,7 +63,7 @@ for line in lines :
             if idx % 2 == 0:
                 plt.plot(x1, y1, 'b')  
             else:
-                plt.plot(x1, y1, 'r-')
+                plt.plot(x1, y1, c = 'r', linewidth=3)
             
             
     
